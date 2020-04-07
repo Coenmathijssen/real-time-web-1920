@@ -1,0 +1,31 @@
+{
+  "name": "real-time-web-1920",
+  "version": "1.0.0",
+  "description": "During this course you will learn how to build a **meaningful** real-time application. You will learn techniques to setup an open connection between the client and the server. This will enable you to send data in real-time both ways, at the same time.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js",
+    "build": "parcel ./public/index.html",
+    "watch": "parcel watch ./public/index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Coenmathijssen/real-time-web-1920.git"
+  },
+  "author": "Coen Mathijssen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Coenmathijssen/real-time-web-1920/issues"
+  },
+  "homepage": "https://github.com/Coenmathijssen/real-time-web-1920#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2",
+    "parcel": "^1.12.4"
+  }
+}
