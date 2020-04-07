@@ -1,5 +1,5 @@
 // Make connection
-const socket = io.connect('http://localhost:3000')
+const socket = io()
 
 // Getting elements
 const message = document.getElementById('message')

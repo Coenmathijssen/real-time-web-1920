@@ -5,7 +5,7 @@ const socket = require('socket.io')
 
 // Setting up port for express to use
 const server = app.listen(process.env.PORT || 3000, () => {
-  console.log('listening on port 3000')
+  console.log('listening on port: ', process.env.PORT)
 })
 
 //  Serve html, css and js files in the static directory
