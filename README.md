@@ -158,4 +158,4 @@ Deploy website on Heroku:
 Coen Mathijssen - MIT license
 
 ## Data lifecycle
-![data exchange-1](https://user-images.githubusercontent.com/43337909/79555528-07128b80-80a0-11ea-864c-148f269623a7.png)
+![data exchange-1](https://user-images.githubusercontent.com/43337909/79555563-18f42e80-80a0-11ea-9e03-c62261ddb827.png)
