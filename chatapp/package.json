@@ -7,7 +7,8 @@
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon app.js",
-    "watch": "parcel watch ./public/index.html"
+    "watch": "parcel watch ./public/index.html",
+    "devv": "parcel serve ./public/index.html --host 192.168.2.5"
   },
   "repository": {
     "type": "git",

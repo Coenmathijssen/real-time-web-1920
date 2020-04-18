@@ -119,7 +119,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   return newRequire;
 })({"js/chat.js":[function(require,module,exports) {
 // Make connection
-var socket = io.connect('http://localhost:3000'); // Getting elements
+var socket = io(); // Getting elements
 
 var message = document.getElementById('message');
 var handle = document.getElementById('handle');
@@ -200,7 +200,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56537" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49166" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
