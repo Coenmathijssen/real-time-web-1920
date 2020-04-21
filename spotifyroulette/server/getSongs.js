@@ -16,8 +16,8 @@ module.exports = async (req, res, next) => {
     let data = await spotifyResponse.json()
     data = data.items
     // console.log(data)
-    res.send(data)
-    cleanItems(data)
+    const cleanedData = cleanItems(data)
+    res.send(cleanedData)
   } catch (err) {
     console.log('error fetching songs of user: ', err)
   }
