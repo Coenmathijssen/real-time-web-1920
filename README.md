@@ -157,5 +157,9 @@ Deploy website on Heroku:
 ## Author and license
 Coen Mathijssen - MIT license
 
+# Eindopdracht
+## Spotify Roulette
+For my concept I'm using the Spotify API. How does my concept work? You are able to enter 'rooms'. Your own space for you and your friends. You're able to enter a room with a code, similary like Kahoot. Then, all users give permission for the webapp to read your Spotify saved song data through OAuth. The webapp serves the users a random song from one of the playlist of a user. All friends have to guess to which user the song belongs. If you get it right, you get a point. If you get more points, you can add more songs to a co-created playlist (of your friends). The ultimate winner is also able to rearrange the songs in the co-created playlist. Now you have a playlist together, which you can use at a party!
+
 ## Data lifecycle
-![data exchange-1](https://user-images.githubusercontent.com/43337909/79555563-18f42e80-80a0-11ea-9e03-c62261ddb827.png)
+![data-lifecycle](https://user-images.githubusercontent.com/43337909/79838758-c70b1b80-83b3-11ea-84de-d49ebd5e9472.jpg)
