@@ -1,18 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Spotify Song Roulette</title>
-  <link rel="stylesheet" href="/main.54166fbf.css">
-<script src="/main.54166fbf.js"></script></head>
+<%- include('./partials/head.ejs') %>
 <body class="enter-game">
-  <img src="/play.3adb8a5b.svg" alt="">
-  <img src="/timer.4a459078.svg" alt="">
-  <div class="logo-container">
-    <img src="/logo.c096ba17.svg" alt="Logo of Spotify Roulette">
-  </div>
+  <%- include('./partials/logo.ejs') %>
   <main>
     <div class="container">
       <h1>Cool, now I need a little bit of information</h1>
@@ -50,8 +38,5 @@
       </form>
     </div>
   </main>
- <!--  <form action="/login">
-    <button type="submit">Login with spotify</button>
-  </form> -->
 </body>
 </html>

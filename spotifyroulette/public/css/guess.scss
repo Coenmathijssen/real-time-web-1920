@@ -1,0 +1,176 @@
+.guess {
+  .song {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+
+    .text {
+      padding-right: 1em;
+
+      h1 {
+        font-size: 1.5em;
+        font-weight: 500;
+        margin-bottom: 0.3em;
+      }
+
+      h2 {
+        font-size: 1.5em;
+        font-weight: 300;
+      }
+    }
+
+    .play-btn {
+      position: relative;
+      width: 100px;
+      height: 80px;
+      background-color: $light_blue;
+      border-radius: 5px;
+
+      img {
+        position: absolute;
+        width: 40%;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }
+  }
+
+  .time {
+    position: relative;
+    height: 60px;
+    margin: 5vh 0;
+
+    .dot {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      bottom: 0;
+      transform: translateY(-50%);
+      background-color: $white;
+      border-radius: 50%;
+      z-index: 10;
+
+      &:first-of-type {
+        left: 0;
+      }
+
+      &:last-of-type {
+        right: 0;
+      }
+    }
+
+    .bar-under, .bar-over {
+      position: absolute;
+      width: calc(100% - 10px);
+      height: 3px;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .bar-under {
+      background-color: $white;
+    }
+
+    .bar-over {
+      background-color: $pink
+    }
+
+    p {
+      position: absolute;
+      top: 25px;
+      font-size: 0.7em;
+      font-weight: 600;
+
+      &:first-of-type {
+        left: 0;
+      }
+
+      &:last-of-type {
+        right: 0;
+      }
+    }
+
+    img {
+      position: absolute;
+      width: 20px;
+      top: 20px;
+      left: 50%;
+      transform: translate(-50%);
+    }
+  }
+
+  .show-players {
+    & > p {
+      font-size: 1.5em;
+      margin-bottom: 0.5em;
+    }
+
+    .players {
+      display: flex;
+      flex-wrap: wrap;
+
+      p {
+        width: calc(50% - 10px);
+        background-color: #121623;
+        padding: 20px 10px;
+        margin: 5px;
+        text-align: center;
+        font-family: gotham, arial, sans-serif;
+        font-weight: 500;
+        border-radius: 5px;
+      }
+    }
+  }
+
+  .players-ready {
+    position: absolute;
+    bottom: 3vh;
+    display: flex;
+    align-items: baseline;
+
+    & > p {
+      transform: translateY(-9px);
+      margin-left: 10px;
+    }
+
+    .number-container {
+      position: relative;
+      width: 70px;
+      height: 60px;
+      overflow: hidden;
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        width: 70%;
+        height: 1px;
+        background-color: $white;
+      }
+
+      p {
+        position: absolute;
+        font-family: gotham, arial, sans-serif;
+        font-weight: 500;
+        font-size: 1.5em;
+
+        &:first-of-type {
+          position: absolute;
+          left: 5px;
+          top: 0;
+          color: $pink;
+        }
+
+        &:last-of-type {
+          position: absolute;
+          right: 5px;
+          bottom: 0;
+        }
+      }
+    }
+  }
+}

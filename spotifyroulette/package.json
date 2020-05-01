@@ -7,8 +7,8 @@
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon app.js",
-    "watch": "parcel watch ./public/index.html",
-    "devv": "parcel serve ./public/index.html --host 192.168.2.5"
+    "watch": "parcel watch ./public/*.html",
+    "devv": "parcel serve ./public/*.html --host 192.168.2.5"
   },
   "repository": {
     "type": "git",
@@ -26,8 +26,10 @@
     "socket.io": "^2.3.0"
   },
   "devDependencies": {
+    "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.5",
     "dotenv": "^8.2.0",
+    "ejs": "^3.1.2",
     "nodemon": "^2.0.2",
     "parcel": "^1.12.4",
     "query-string": "^6.12.1"

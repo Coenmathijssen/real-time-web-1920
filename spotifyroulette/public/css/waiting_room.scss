@@ -1,0 +1,138 @@
+.waiting-room {
+  overflow: hidden;
+
+  main {
+    position: relative;
+    min-height: auto;
+    padding-bottom: 15vh;
+
+    &::after {
+      content: '';
+      position: absolute;
+      width: 130%;
+      height: 1px;
+      bottom: 10%;
+      left: -20%;
+      transform: rotate(5deg);
+      background-color: $white;
+    }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 500;
+      max-width: 80%;
+      margin-bottom: 1em;
+    }
+
+    h2 {
+      display: inline;
+      padding: 10px 10px 5px;
+      font-size: 2.5em;
+      font-weight: 600;
+      letter-spacing: 3px;
+      background-color: $dark_blue;
+      border-radius: 5px;
+    }
+
+    p {
+      margin-top: 1em;
+    }
+  }
+
+  .show-players {
+    .players-ready {
+      display: flex;
+      align-items: baseline;
+
+      .number-container {
+        position: relative;
+        width: 70px;
+        height: 60px;
+        overflow: hidden;
+
+        &::after {
+          content: '';
+          position: absolute;
+          left: 50%;
+          bottom: 50%;
+          transform: translate(-50%, -50%) rotate(-45deg);
+          width: 70%;
+          height: 1px;
+          background-color: $white;
+        }
+
+        p {
+          position: absolute;
+          font-family: gotham, arial, sans-serif;
+          font-weight: 500;
+          font-size: 1.5em;
+
+          &:first-of-type {
+            position: absolute;
+            left: 5px;
+            top: 0;
+            color: $pink;
+          }
+
+          &:last-of-type {
+            position: absolute;
+            right: 5px;
+            bottom: 0;
+          }
+        }
+      }
+
+      & > p {
+        transform: translateY(-9px);
+        margin-left: 10px;
+      }
+    }
+
+    .players {
+      display: flex;
+      flex-wrap: wrap;
+
+      p {
+        width: calc(50% - 10px);
+        background-color: #121623;
+        padding: 15px 10px;
+        margin: 5px;
+        text-align: center;
+        font-family: gotham, arial, sans-serif;
+        font-weight: 500;
+        border-radius: 5px;
+      }
+    }
+  }
+
+  button, a {
+    position: absolute;
+    bottom: 2vh;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: gotham, arial, sans-serif;
+    color: $white;
+    text-decoration: none;
+    border: none;
+    font-weight: 500;
+    width: 60%;
+    padding: 10px 15px;
+    font-size: 1.2em;
+    background-color: $pink;
+    border-radius: 5px;
+    margin: 2vh 0;
+    box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.75);
+
+    &::after {
+      content: '';
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: url('../img/svg/btn_element.svg') no-repeat;
+      background-size: 100%;
+      width: 40px;
+      height: 26px;
+    }
+  }
+}

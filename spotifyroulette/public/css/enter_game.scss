@@ -1,0 +1,120 @@
+.enter-game {
+  h1 {
+    font-size: 1.5em;
+    font-weight: 500;
+  }
+  form {
+    position: relative;
+    background: $dark_blue;
+    border-radius: 5px;
+    padding: 2em 1.5em 4em;
+    margin-top: 5vh;
+
+    label {
+      font-family: gotham, arial, sans-serif;
+      font-size: 1em;
+      color: white;
+      font-weight: 500;
+    }
+
+    input {
+      display: block;
+      font-family: gotham, arial, sans-serif;
+      font-size: 0.9em;
+      color: white;
+      font-weight: 400;
+      background: none;
+      border: solid 1px $white;
+      border-radius: 5px;
+      width: 100%;
+      padding: 5px 15px;
+      margin: 0.5em auto 2em;
+    }
+
+    button, a {
+      position: absolute;
+      bottom: -35px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: gotham, arial, sans-serif;
+      color: $white;
+      text-decoration: none;
+      border: none;
+      font-weight: 500;
+      width: 80%;
+      padding: 10px 15px;
+      font-size: 1.2em;
+      background-color: $pink;
+      border-radius: 5px;
+      margin: 2vh 0;
+      box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.75);
+
+      &::after {
+        content: '';
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: url('../img/svg/btn_element.svg') no-repeat;
+        background-size: 100%;
+        width: 40px;
+        height: 26px;
+      }
+    }
+  }
+
+  div.options {
+    display: inline;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    margin-top: 1em;
+
+    input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+    }
+
+    input[type="radio"] + label {
+      padding: 10px 15px;
+      border-radius: 5px;
+      background: rgba(255,255,255, 0.1);
+      transition: all .3s;
+    }
+
+    input[type="radio"]:hover + label {
+      cursor: pointer;
+    }
+
+    label {
+      width: 100%;
+      padding: 15px;
+      font-family: gotham, arial, sans-serif;
+      letter-spacing: 1px;
+
+      img {
+        margin: 0 auto 10px;
+        max-width: 80px;
+        display: block;
+      }
+    }
+
+    div {
+      margin: 0;
+
+      input[type="radio"]:checked + label {
+        background: rgba(255,255,255,1);
+        color: #000;
+        transition: all .3s;
+      }
+    }
+  }
+
+  &.join {
+    form {
+      padding-bottom: 2em;
+    }
+  }
+}
