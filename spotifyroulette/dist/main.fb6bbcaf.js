@@ -119,7 +119,8 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   return newRequire;
 })({"js/main.js":[function(require,module,exports) {
 // Make connection
-var socket = io(); // let pages appear and disapear
+var socket = io();
+var cookie = getCookie('ACCESS_TOKEN'); // let pages appear and disapear
 
 var introduction = document.getElementsByClassName('introduction')[0];
 var createGame = document.getElementsByClassName('create')[0];
@@ -190,8 +191,8 @@ socket.on('accepted', function (roomPin) {
   joinGame.classList.remove('visible');
   waitingRoom.classList.add('visible');
 });
-socket.on('denied', function (roomPin) {
-  window.alert("The entered pin of ".concat(roomPin, " is not valid, please try again"));
+socket.on('denied', function (message) {
+  window.alert(message);
 }); // Add users in waiting room, game and scoreboard
 
 socket.on('user joined', function (user) {
@@ -213,6 +214,7 @@ socket.on('increment', function (amount) {
 socket.on('user left', function (user) {
   console.log('joe', user);
   var player = document.getElementById(user);
+  console.log(player);
   player.remove();
 }); // Start game
 
@@ -221,6 +223,12 @@ socket.on('starting', function () {
   waitingRoom.classList.remove('visible');
   guess.classList.add('visible');
 });
+
+function getCookie(name) {
+  var value = "; " + document.cookie;
+  var parts = value.split("; " + name + "=");
+  if (parts.length == 2) return parts.pop().split(";").shift();
+}
 },{}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -249,7 +257,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63255" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54451" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

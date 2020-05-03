@@ -1,9 +1,6 @@
-const fetch = require('node-fetch')
-
-let tempDatabase = []
-
 module.exports = async (req, res, next) => {
   const accessToken = req.cookies.ACCESS_TOKEN
+  console.log('working')
 
   const headers = {
     headers: {
@@ -17,10 +14,31 @@ module.exports = async (req, res, next) => {
     const spotifyResponse = await fetch(('https://api.spotify.com/v1/me/tracks'), headers)
     let data = await spotifyResponse.json()
     data = data.items
-    // console.log(data)
     const cleanedData = cleanItems(data)
     tempDatabase.push(cleanItems)
-    // res.redirect('/index', cleanedData)
+    // console.log('data: ', cleanedData)
+
+    console.log(socket)
+
+    const dataa = {
+      users: [
+        {
+          username: 'joe',
+          songs: cleanedData
+        }
+      ]
+    }
+
+    const newUser = new User(dataa)
+
+    newUser.save(err => {
+      if (err) {
+        console.log('save failed: ', err)
+      } else {
+        console.log('data has been saved')
+      }
+    })
+
     res.send(cleanedData)
   } catch (err) {
     console.log('error fetching songs of user: ', err)

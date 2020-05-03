@@ -1,6 +1,8 @@
 // Make connection
 const socket = io()
 
+let cookie = getCookie('ACCESS_TOKEN')
+
 // let pages appear and disapear
 const introduction = document.getElementsByClassName('introduction')[0]
 const createGame = document.getElementsByClassName('create')[0]
@@ -86,8 +88,8 @@ socket.on('accepted', roomPin => {
   waitingRoom.classList.add('visible')
 })
 
-socket.on('denied', roomPin => {
-  window.alert(`The entered pin of ${roomPin} is not valid, please try again`)
+socket.on('denied', message => {
+  window.alert(message)
 })
 
 // Add users in waiting room, game and scoreboard
@@ -119,6 +121,7 @@ socket.on('increment', amount => {
 socket.on('user left', user => {
   console.log('joe', user)
   let player = document.getElementById(user)
+  console.log(player)
   player.remove()
 })
 
@@ -128,3 +131,9 @@ socket.on('starting', () => {
   waitingRoom.classList.remove('visible')
   guess.classList.add('visible')
 })
+
+function getCookie(name) {
+  var value = "; " + document.cookie;
+  var parts = value.split("; " + name + "=");
+  if (parts.length == 2) return parts.pop().split(";").shift();
+}
