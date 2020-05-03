@@ -1,15 +1,13 @@
 <%- include('./partials/head.ejs') %>
-<body class="introduction">
+<body>
   <%- include('./partials/logo.ejs') %>
-  <main>
-    <div class="container">
-      <h1>What do you want to do?</h1>
-      <a href="/create">Create a game</a>
-      <a href="/join">Join a game</a>
-    </div>
-  </main>
- <!--  <form action="/login">
-    <button type="submit">Login with spotify</button>
-  </form> -->
+  <%- include('./pages/introduction.ejs') %>
+  <%- include('./pages/create-game.ejs') %>
+  <%- include('./pages/join-game.ejs') %>
+  <%- include('./pages/waiting-room.ejs') %>
+  <%- include('./pages/guess.ejs') %>
+  <%- include('./pages/score.ejs') %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+<script src="/main.fb6bbcaf.js"></script>
 </body>
 </html>

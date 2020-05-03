@@ -1,30 +1,21 @@
-<%- include('./partials/head.ejs') %>
-<body class="waiting-room">
-  <%- include('./partials/logo.ejs') %>
+<div class="waiting-room content">
   <div class="container">
-    <main>
+    <div class="main">
       <h1>That's settled! Your game ID is</h1>
-      <h2>1649103</h2>
+      <h2 id="room-pin"></h2>
       <p>Let all your friends join your game with this game ID. Click start if you're ready!</p>
-    </main>
+    </div>
     <section class="show-players">
       <div class="players-ready">
         <div class="number-container">
-          <p>06</p>
+          <p id="players-ready"></p>
           <p>10</p>
         </div>
         <p>Players ready</p>
       </div>
       <div class="players">
-        <p>Coen</p>
-        <p>Ronald</p>
-        <p>Mohammed</p>
-        <p>Charlotte</p>
-        <p>Irene</p>
-        <p>Robbert</p>
       </div>
     </section>
   </div>
-  <a href="">Ready to play!</a>
-</body>
-</html>
+  <a id="ready-to-play">Ready to play!</a>
+</div>

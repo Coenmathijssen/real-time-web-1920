@@ -31,7 +31,7 @@ module.exports = async (req, res, next) => {
     res.cookie('ACCESS_TOKEN', data.access_token)
     res.cookie('REFRESH_TOKEN', data.refresh_token)
 
-    res.redirect('/account')
+    res.redirect('/index')
   } catch (err) {
     console.log('error verifying: ', err)
     res.send(err)

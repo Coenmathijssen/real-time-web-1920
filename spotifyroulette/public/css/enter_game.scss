@@ -3,12 +3,13 @@
     font-size: 1.5em;
     font-weight: 500;
   }
-  form {
+  fieldset {
     position: relative;
     background: $dark_blue;
     border-radius: 5px;
     padding: 2em 1.5em 4em;
     margin-top: 5vh;
+    border: none;
 
     label {
       font-family: gotham, arial, sans-serif;

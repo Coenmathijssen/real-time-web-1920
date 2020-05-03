@@ -1,0 +1,14 @@
+<%- include('./partials/head.ejs') %>
+<body>
+  <div class="login content visible">
+    <div class="container">
+      <h1>Please login to Spotify</h1>
+      <p>In order for you to play Spotify Song Roulette, we need your Spotify data. This data will be used for this game and this game only.</p>
+      <form action="/login">
+        <button type="submit">Login to spotify</button>
+      </form>
+    </div>
+  </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+</body>
+</html>

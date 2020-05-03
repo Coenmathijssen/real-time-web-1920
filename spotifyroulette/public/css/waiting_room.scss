@@ -1,7 +1,8 @@
 .waiting-room {
+  position: relative;
   overflow: hidden;
 
-  main {
+  .main {
     position: relative;
     min-height: auto;
     padding-bottom: 15vh;
@@ -107,7 +108,7 @@
 
   button, a {
     position: absolute;
-    bottom: 2vh;
+    bottom: 12vh;
     left: 50%;
     transform: translateX(-50%);
     font-family: gotham, arial, sans-serif;
@@ -122,6 +123,11 @@
     border-radius: 5px;
     margin: 2vh 0;
     box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.75);
+    visibility: hidden;
+
+    &.visible {
+      visibility: visible;
+    }
 
     &::after {
       content: '';

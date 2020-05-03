@@ -5,6 +5,7 @@
 }
 
 body {
+  position: relative;
   background: black;
   background: linear-gradient(to right, black 0%, #0e0d1a 100%);
 }
@@ -19,14 +20,27 @@ body {
   margin: 10px auto auto 10px;
 }
 
-main {
+.content {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding-top: 15vh;
+  height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+  visibility: hidden;
+}
+.content.visible {
+  visibility: visible;
+}
+.content.waiting-room {
   padding-top: 5vh;
 }
 
 .container {
   padding: 0px 1.5em;
   margin: 0 auto;
-  max-width: 1280px;
+  max-width: 700px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -53,12 +67,12 @@ p {
   color: #FFFFFF;
 }
 
-.introduction h1 {
+.introduction h1, .login h1 {
   font-size: 2.5em;
   margin-bottom: 5vh;
   font-weight: 500;
 }
-.introduction a {
+.introduction a, .introduction button, .login a, .login button {
   position: relative;
   font-family: gotham, arial, sans-serif;
   color: #FFFFFF;
@@ -72,7 +86,7 @@ p {
   margin: 2vh 0;
   box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
 }
-.introduction a::after {
+.introduction a::after, .introduction button::after, .login a::after, .login button::after {
   content: "";
   position: absolute;
   right: 20px;
@@ -84,24 +98,37 @@ p {
   height: 32px;
 }
 
+.login h1 {
+  font-size: 2em;
+  margin-bottom: 3vh;
+}
+.login p {
+  margin-bottom: 3vh;
+}
+.login button {
+  text-align: left;
+  border: none;
+}
+
 .enter-game h1 {
   font-size: 1.5em;
   font-weight: 500;
 }
-.enter-game form {
+.enter-game fieldset {
   position: relative;
   background: #121623;
   border-radius: 5px;
   padding: 2em 1.5em 4em;
   margin-top: 5vh;
+  border: none;
 }
-.enter-game form label {
+.enter-game fieldset label {
   font-family: gotham, arial, sans-serif;
   font-size: 1em;
   color: white;
   font-weight: 500;
 }
-.enter-game form input {
+.enter-game fieldset input {
   display: block;
   font-family: gotham, arial, sans-serif;
   font-size: 0.9em;
@@ -114,7 +141,7 @@ p {
   padding: 5px 15px;
   margin: 0.5em auto 2em;
 }
-.enter-game form button, .enter-game form a {
+.enter-game fieldset button, .enter-game fieldset a {
   position: absolute;
   bottom: -35px;
   left: 50%;
@@ -132,7 +159,7 @@ p {
   margin: 2vh 0;
   box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
 }
-.enter-game form button::after, .enter-game form a::after {
+.enter-game fieldset button::after, .enter-game fieldset a::after {
   content: "";
   position: absolute;
   right: 15px;
@@ -189,14 +216,15 @@ p {
 }
 
 .waiting-room {
+  position: relative;
   overflow: hidden;
 }
-.waiting-room main {
+.waiting-room .main {
   position: relative;
   min-height: auto;
   padding-bottom: 15vh;
 }
-.waiting-room main::after {
+.waiting-room .main::after {
   content: "";
   position: absolute;
   width: 130%;
@@ -206,13 +234,13 @@ p {
   transform: rotate(5deg);
   background-color: #FFFFFF;
 }
-.waiting-room main h1 {
+.waiting-room .main h1 {
   font-size: 1.5em;
   font-weight: 500;
   max-width: 80%;
   margin-bottom: 1em;
 }
-.waiting-room main h2 {
+.waiting-room .main h2 {
   display: inline;
   padding: 10px 10px 5px;
   font-size: 2.5em;
@@ -221,7 +249,7 @@ p {
   background-color: #121623;
   border-radius: 5px;
 }
-.waiting-room main p {
+.waiting-room .main p {
   margin-top: 1em;
 }
 .waiting-room .show-players .players-ready {
@@ -281,7 +309,7 @@ p {
 }
 .waiting-room button, .waiting-room a {
   position: absolute;
-  bottom: 2vh;
+  bottom: 12vh;
   left: 50%;
   transform: translateX(-50%);
   font-family: gotham, arial, sans-serif;
@@ -296,6 +324,10 @@ p {
   border-radius: 5px;
   margin: 2vh 0;
   box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
+  visibility: hidden;
+}
+.waiting-room button.visible, .waiting-room a.visible {
+  visibility: visible;
 }
 .waiting-room button::after, .waiting-room a::after {
   content: "";
@@ -313,6 +345,7 @@ p {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
+  padding-right: 20px;
 }
 .guess .song .text {
   padding-right: 1em;

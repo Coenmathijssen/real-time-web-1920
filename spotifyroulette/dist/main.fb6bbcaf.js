@@ -117,79 +117,111 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"../node_modules/parcel/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"js/main.js":[function(require,module,exports) {
+// Make connection
+var socket = io(); // let pages appear and disapear
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
-  }
+var introduction = document.getElementsByClassName('introduction')[0];
+var createGame = document.getElementsByClassName('create')[0];
+var joinGame = document.getElementsByClassName('join')[0];
+var waitingRoom = document.getElementsByClassName('waiting-room')[0];
+var guess = document.getElementsByClassName('guess')[0];
+var score = document.getElementsByClassName('scores')[0]; // Introduction
 
-  return bundleURL;
-}
+document.getElementById('create-gimma').addEventListener('click', function () {
+  introduction.classList.remove('visible');
+  createGame.classList.add('visible');
+});
+document.getElementById('join-gimma').addEventListener('click', function () {
+  introduction.classList.remove('visible');
+  joinGame.classList.add('visible');
+}); // Create game
 
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
+document.getElementById('create-game').addEventListener('click', function () {
+  createGame.classList.remove('visible');
+  waitingRoom.classList.add('visible');
+}); // Waiting room
 
-    if (matches) {
-      return getBaseURL(matches[0]);
-    }
-  }
+document.getElementById('ready-to-play').addEventListener('click', function () {
+  socket.emit('start game');
+}); // Guess room
 
-  return '/';
-}
+document.getElementsByClassName('time')[0].addEventListener('click', function () {
+  guess.classList.remove('visible');
+  score.classList.add('visible');
+}); // SOCKET.IO
+// Creating game
 
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)\/[^/]+$/, '$1') + '/';
-}
+var createGameButton = document.getElementById('create-game');
+createGameButton.addEventListener('click', function () {
+  var playerName = document.getElementsByName('playerName')[0].value;
+  var duration = document.querySelector('input[name="duration"]:checked').value;
+  console.log(playerName, duration);
+  socket.emit('create room', {
+    pin: null,
+    hostName: playerName,
+    duration: duration,
+    players: [playerName]
+  });
+}); // Set room pin of waiting room
 
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"../node_modules/parcel/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
+socket.on('set pin', function (roomPin) {
+  console.log('running?');
+  var pin = document.getElementById('room-pin');
+  pin.textContent = roomPin;
+}); // Join game
+// Creating game
 
-function updateLink(link) {
-  var newLink = link.cloneNode();
+var joinGameButton = document.getElementById('join-game');
+joinGameButton.addEventListener('click', function () {
+  console.log('working client');
+  var playerName = document.getElementsByName('playerName')[1].value;
+  var pin = document.getElementsByName('groupName')[0].value;
+  socket.emit('join room request', {
+    pin: pin,
+    playerName: playerName
+  });
+}); // Let play button appear for the one socket who created the room
 
-  newLink.onload = function () {
-    link.remove();
-  };
+socket.on('play button appear', function () {
+  document.getElementById('ready-to-play').classList.add('visible');
+});
+socket.on('accepted', function (roomPin) {
+  joinGame.classList.remove('visible');
+  waitingRoom.classList.add('visible');
+});
+socket.on('denied', function (roomPin) {
+  window.alert("The entered pin of ".concat(roomPin, " is not valid, please try again"));
+}); // Add users in waiting room, game and scoreboard
 
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
+socket.on('user joined', function (user) {
+  // Add users in waiting room
+  var playerList = document.getElementsByClassName('players')[0];
+  playerList.innerHTML += "<p class=\"".concat(user, "\">").concat(user, "</p>"); // Add users in game
 
-var cssTimeout = null;
+  var players = document.getElementsByClassName('players')[1];
+  players.innerHTML += "<p id=\"".concat(user, "\">").concat(user, "</p>");
+  var scoreboard = document.getElementsByClassName('scoreboard')[0];
+  scoreboard.innerHTML += "<div class=\"scorecard score".concat(user, "\">\n    <p class=\"place place").concat(user, "\">01</p>\n    <p class=\"name name").concat(user, "\">").concat(user, "</p>\n    <p class=\"score score").concat(user, "\">3524</p>\n  </div>");
+}); // Update counter of players ready
 
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
-  }
+socket.on('increment', function (amount) {
+  var playersReady = document.getElementById('players-ready');
+  playersReady.textContent = amount;
+}); // Remove users in waiting room
 
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
+socket.on('user left', function (user) {
+  console.log('joe', user);
+  var player = document.getElementById(user);
+  player.remove();
+}); // Start game
 
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
-      }
-    }
-
-    cssTimeout = null;
-  }, 50);
-}
-
-module.exports = reloadCSS;
-},{"./bundle-url":"../node_modules/parcel/src/builtins/bundle-url.js"}],"css/main.scss":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
-
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"./../img/svg/btn_element.svg":[["btn_element.e07439e9.svg","img/svg/btn_element.svg"],"img/svg/btn_element.svg"],"_css_loader":"../node_modules/parcel/src/builtins/css-loader.js"}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+socket.on('starting', function () {
+  document.getElementById('ready-to-play').classList.remove('visible');
+  waitingRoom.classList.remove('visible');
+  guess.classList.add('visible');
+});
+},{}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -393,5 +425,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../node_modules/parcel/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/main.54166fbf.js.map
+},{}]},{},["../node_modules/parcel/src/builtins/hmr-runtime.js","js/main.js"], null)
+//# sourceMappingURL=/main.fb6bbcaf.js.map

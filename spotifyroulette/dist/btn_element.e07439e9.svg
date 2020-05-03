@@ -1,1 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 142 87"><defs><style>.cls-1{fill:none;stroke:#fff;stroke-miterlimit:10;stroke-width:3px;}.cls-2{fill:#fff;}</style></defs><title>btn_element</title><g id="Layer_2" data-name="Layer 2"><g id="Layer_1-2" data-name="Layer 1"><line class="cls-1" x1="41" y1="43.5" x2="138.39" y2="43.5"/><path class="cls-2" d="M117.89,57.9a1.49,1.49,0,0,1,.46-2.07L137.71,43.5,118.35,31.17A1.5,1.5,0,1,1,120,28.64l21.35,13.59a1.51,1.51,0,0,1,0,2.54L120,58.36a1.48,1.48,0,0,1-.8.23A1.5,1.5,0,0,1,117.89,57.9Z"/><path class="cls-1" d="M82.55,59a42,42,0,1,1-.35-31.85"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 142 87">
+  <defs>
+    <style>
+      .cls-1{fill:none;stroke:#fff;stroke-miterlimit:10;stroke-width:3px}
+    </style>
+  </defs>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="Layer_1-2" data-name="Layer 1">
+      <path class="cls-1" d="M41 43.5h97.39"/>
+      <path d="M117.89 57.9a1.49 1.49 0 01.46-2.07l19.36-12.33-19.36-12.33a1.5 1.5 0 111.65-2.53l21.35 13.59a1.51 1.51 0 010 2.54L120 58.36a1.48 1.48 0 01-.8.23 1.5 1.5 0 01-1.31-.69z" fill="#fff"/>
+      <path class="cls-1" d="M82.55 59a42 42 0 11-.35-31.85"/>
+    </g>
+  </g>
+</svg>

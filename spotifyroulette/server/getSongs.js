@@ -1,5 +1,7 @@
 const fetch = require('node-fetch')
 
+let tempDatabase = []
+
 module.exports = async (req, res, next) => {
   const accessToken = req.cookies.ACCESS_TOKEN
 
@@ -17,6 +19,8 @@ module.exports = async (req, res, next) => {
     data = data.items
     // console.log(data)
     const cleanedData = cleanItems(data)
+    tempDatabase.push(cleanItems)
+    // res.redirect('/index', cleanedData)
     res.send(cleanedData)
   } catch (err) {
     console.log('error fetching songs of user: ', err)

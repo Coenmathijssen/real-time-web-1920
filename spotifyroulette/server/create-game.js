@@ -4,7 +4,10 @@ module.exports = (req, res) => {
   const newRoom = {
     pin: getRandomNumber(100000),
     hostName: req.body.playerName,
-    duration: req.body.duration
+    duration: req.body.duration,
+    players: [
+      req.body.playerName
+    ]
   }
 
   tempDatabase.push(newRoom)
