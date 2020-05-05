@@ -826,5 +826,43 @@ Here, I create an array of html elements. I sort this array on the value (number
   })
 ```
 
+## Features
+**made**
+- Create rooms with unique ID
+- Join rooms with unique ID
+- Guess song of players (game)
+- See everyones score
+- Database management
+
+**would do with more time**
+- Create playlist with connected players to room
+- The more points the player gets, the more songs he/she can add to playlist
+- Winner can reorder playlist
+
+## Dependencies
+- express
+- mongoose
+- node-fetch
+- socket.io
+- body-parser
+- cookie-parser
+- dotenv
+- ejs
+- nodemon
+- parcel
+- query-string
+
+## Sources
+- https://stackoverflow.com/questions/19269545/how-to-get-n-no-elements-randomly-from-an-array
+- https://stackoverflow.com/questions/36032179/remove-duplicates-in-an-object-array-javascript
+- https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
+- https://www.youtube.com/watch?v=OuCrHynro0w&t=828s
+- https://stackoverflow.com/questions/16994662/count-animation-from-number-a-to-b
+
+## Credits
+- Kris | A complete explanation of Oauth with the Spotify API. Would've never completed the project in time without it
+- Manouk | Tips and feedback on my concept and data flow
+- Joan | Helping me with a mental breakdown
+
 ## Author and license
 Coen Mathijssen - MIT license
