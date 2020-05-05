@@ -35,8 +35,9 @@ app.use(cookieParser())
 // Mongoose setup
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/rtw_database', {
   useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+  useUnifiedTopology: true,
+  useCreateIndex: true
+}).catch(err => console.log(err))
 
 mongoose.connection.on('connected', () => {
   console.log('mongoose is connected')
