@@ -117,7 +117,48 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"js/main.js":[function(require,module,exports) {
+})({"js/scoreboard-move.js":[function(require,module,exports) {
+function moveUsersInScoreboard() {
+  // Add all connected players to the guess room
+  var scores = document.getElementsByClassName('score'); // https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
+  // Sort innerHTML from high to low (score)
+
+  var sorted = [];
+
+  for (var i in scores) {
+    if (scores[i].nodeType === 1) {
+      // get rid of the whitespace text nodes
+      sorted.push(scores[i]);
+    }
+  }
+
+  sorted.sort(function (a, b) {
+    return a.innerHTML === b.innerHTML ? 0 : a.innerHTML < b.innerHTML ? 1 : -1;
+  }); // Remove 'score-' in id
+
+  var sortedNames = sorted.map(function (item) {
+    var id = item.id;
+    id = id.replace('score-', '');
+    return id;
+  });
+  var scoreboard = document.getElementsByClassName('scoreboard')[0];
+  scoreboard.innerHTML = '';
+  sortedNames.forEach(function (item, i) {
+    var place = i + 1;
+    var score = sorted[i].innerHTML;
+    score = score.toString();
+    console.log('item: ', score);
+    scoreboard.innerHTML += "<div class=\"scorecard score".concat(item, "\">\n      <p class=\"place place-").concat(item, "\">0").concat(place, "</p>\n      <p class=\"name name-").concat(item, "\">").concat(item, "</p>\n      <p class=\"score\" id=\"score-").concat(item, "\">").concat(score, "</p>\n    </div>");
+  });
+}
+},{}],"js/main.js":[function(require,module,exports) {
+"use strict";
+
+var _scoreboardMove = _interopRequireDefault(require("./scoreboard-move.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// Import functions
 // Make connection
 var socket = io(); // let pages appear and disapear
 
@@ -168,7 +209,6 @@ socket.on('set pin', function (roomPin) {
   var pin = document.getElementById('room-pin');
   pin.textContent = roomPin;
 }); // Join game
-// Creating game
 
 var joinGameButton = document.getElementById('join-game');
 joinGameButton.addEventListener('click', function () {
@@ -234,7 +274,7 @@ socket.on('game commands', function (song) {
 
   var timer = document.getElementsByClassName('bar-over')[0];
   timer.classList.add('visible');
-  timer.style.transition = 'all 10s linear';
+  timer.style.transition = 'all 30s linear';
   timer.style.width = '0px'; // Update right anwser visually
 
   if (song.username !== undefined) {
@@ -244,7 +284,7 @@ socket.on('game commands', function (song) {
 
   setTimeout(function () {
     document.getElementById('audio-play').pause();
-  }, 10000); // Render the score page
+  }, 25000); // Render the score page
 
   setTimeout(function () {
     guess.classList.remove('visible');
@@ -253,15 +293,16 @@ socket.on('game commands', function (song) {
 
     timer.style.transition = 'all 0s linear';
     timer.style.width = 'calc(100% - 10px)';
-  }, 10001); // Render the guess page again
+  }, 25001); // Render the guess page again
 
   setTimeout(function () {
     score.classList.remove('visible');
     guess.classList.add('visible');
-  }, 15001); // Enable users to click on a answer again
+  }, 30001); // Enable users to click on a answer again
 
   answers.forEach(function (answer) {
     answer.addEventListener('click', submitAnswer);
+    answer.style.backgroundColor = '#121623';
   });
 }); // Add all connected players to the guess room
 
@@ -282,7 +323,8 @@ answers.forEach(function (answer) {
 });
 
 function submitAnswer() {
-  socket.emit('answer submitted', this.id); // Remove all event listeners when item is clicked, to prevent from clicking multiple times
+  socket.emit('answer submitted', this.id);
+  this.style.backgroundColor = '#F6546A'; // Remove all event listeners when item is clicked, to prevent from clicking multiple times
 
   answers.forEach(function (answer) {
     answer.removeEventListener('click', submitAnswer);
@@ -293,58 +335,9 @@ socket.on('update score', function (user, score) {
   console.log(user);
   console.log(document.getElementById("score-".concat(user)));
   document.getElementById("score-".concat(user)).textContent = score;
-  moveUsersInScoreboard();
+  (0, _scoreboardMove.default)();
 });
-
-function moveUsersInScoreboard() {
-  // Add all connected players to the guess room
-  var scores = document.getElementsByClassName('score'); // https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
-  // Sort innerHTML from high to low (score)
-
-  var sorted = [];
-
-  for (var i in scores) {
-    if (scores[i].nodeType === 1) {
-      // get rid of the whitespace text nodes
-      sorted.push(scores[i]);
-    }
-  }
-
-  sorted.sort(function (a, b) {
-    return a.innerHTML === b.innerHTML ? 0 : a.innerHTML < b.innerHTML ? 1 : -1;
-  }); // Remove 'score-' in id
-
-  var sortedNames = sorted.map(function (item) {
-    var id = item.id;
-    id = id.replace('score-', '');
-    return id;
-  });
-  var scoreboard = document.getElementsByClassName('scoreboard')[0];
-  scoreboard.innerHTML = '';
-  sortedNames.forEach(function (item, i) {
-    var place = i + 1;
-    var score = sorted[i].innerHTML;
-    score = score.toString();
-    console.log('item: ', score);
-    scoreboard.innerHTML += "<div class=\"scorecard score".concat(item, "\">\n      <p class=\"place place-").concat(item, "\">0").concat(place, "</p>\n      <p class=\"name name-").concat(item, "\">").concat(item, "</p>\n      <p class=\"score\" id=\"score-").concat(item, "\">").concat(score, "</p>\n    </div>");
-  });
-} // // Animating score
-// function animateValue (element, start, end, duration) {
-//   var range = end - start
-//   var current = start
-//   var increment = end > start ? 1 : -1
-//   var stepTime = Math.abs(Math.floor(duration / range))
-//   var obj = document.getElementById(id)
-//   var timer = setInterval(() => {
-//     current += increment
-//     obj.innerHTML = current
-//     if (current === end) {
-//       clearInterval(timer)
-//     }
-//   }, stepTime)
-// }
-// animateValue('value', 100, 25, 5000)
-},{}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./scoreboard-move.js":"js/scoreboard-move.js"}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -372,7 +365,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50412" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64559" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

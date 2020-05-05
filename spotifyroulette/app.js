@@ -11,11 +11,7 @@ require('dotenv').config()
 const loginRoute = require('./server/login.js')
 const callbackRoute = require('./server/callback.js')
 const { User, Room } = require('./server/user-schema.js')
-
-// // Setting up port for express to use
-// const server = app.listen(3000, `192.168.2.8`, () => {
-//   console.log('listening on port: ', process.env.PORT)
-// })
+const { randomSongPick, filterDuplicates, addUsername, cleanItems, getRandomNumber } = require('./server/data.js')
 
 // Setting up port for express to use
 const server = app.listen(3000, `localhost`, () => {
@@ -251,8 +247,13 @@ io.on('connection', socket => {
                 })
                 // Delete room if no players are in it
               } if (foundRoom.players.length === 0) {
-                Room.findOneAndDelete(foundRoom)
-                console.log('room deleted')
+                foundRoom.remove((err, deleted) => {
+                  if (err) {
+                    console.log(err)
+                  } else {
+                    console.log('room deleted')
+                  }
+                })
               }
 
               // Update waiting room visually for all sockets
@@ -261,6 +262,14 @@ io.on('connection', socket => {
             }
           })
         }
+      }
+    })
+
+    User.findOneAndDelete({ username: socket.username }, (err, removed) => {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log('user deleted')
       }
     })
   })
@@ -339,45 +348,14 @@ io.on('connection', socket => {
   })
 })
 
-function getRandomNumber (between) {
-  return Math.floor(Math.random() * between) + 1
-}
-
-// Pick random items out of array
-function randomSongPick (array, amount) {
-  return array
-    .map(x => ({ x, r: Math.random() }))
-    .sort((a, b) => a.r - b.r)
-    .map(a => a.x)
-    .slice(0, amount)
-}
-
-function filterDuplicates (songs) {
-  const unique = songs.filter((elem, index, self) => self.findIndex((t) => {
-    // https://stackoverflow.com/questions/36032179/remove-duplicates-in-an-object-array-javascript
-    return (t.song === elem.song)
-  }) === index)
-
-  return unique
-}
-
-function addUsername (array, username) {
-  return array.map(el => {
-    let song = Object.assign({}, el)
-    song.username = username
-    return song
-  })
-}
-
 function gameStart (room) {
   io.in(room.pin).emit('game commands')
 
   // Wait 10 seconds with every iteration
-  const interval = 15000
+  const interval = 30000
   room.songsSelection.forEach(function (song, index) {
     setTimeout(() => {
       io.in(room.pin).emit('game commands', song)
-      io.in(room.pin).emit('update answer', song.username)
     }, index * interval)
   })
 }
@@ -399,25 +377,12 @@ const getSongs = async (req, res, next) => {
     let data = await spotifyResponse.json()
     data = data.items
     cleanedData = cleanItems(data)
+    console.log(cleanedData)
     res.render('index.ejs')
     return cleanedData
   } catch (err) {
     console.log('error fetching songs of user: ', err)
   }
-}
-
-function cleanItems (data) {
-  const cleanedData = data.map(item => {
-    const track = item.track
-
-    return {
-      'song': track.name,
-      'artists': track.artists.map(artist => artist.name),
-      'sample': track.preview_url
-    }
-  })
-  // console.log('data cleaned: ', cleanedData)
-  return cleanedData
 }
 
 app.get('/getData', getSongs) // calback url

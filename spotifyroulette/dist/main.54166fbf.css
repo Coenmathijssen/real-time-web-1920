@@ -57,6 +57,10 @@ body {
     background-position: 0% 50%;
   }
 }
+button, a {
+  cursor: pointer;
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: gotham, arial, sans-serif;
   color: #FFFFFF;
@@ -98,6 +102,9 @@ p {
   height: 32px;
 }
 
+.login {
+  background: linear-gradient(to right, black 0%, #0e0d1a 100%);
+}
 .login h1 {
   font-size: 2em;
   margin-bottom: 3vh;
@@ -140,6 +147,7 @@ p {
   width: 100%;
   padding: 5px 15px;
   margin: 0.5em auto 2em;
+  cursor: pointer;
 }
 .enter-game fieldset button, .enter-game fieldset a {
   position: absolute;
@@ -452,6 +460,12 @@ p {
   font-family: gotham, arial, sans-serif;
   font-weight: 500;
   border-radius: 5px;
+  visibility: hidden;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.guess .show-players .players p.visible {
+  visibility: visible;
 }
 .guess .players-ready {
   position: absolute;

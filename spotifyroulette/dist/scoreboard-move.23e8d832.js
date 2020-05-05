@@ -117,8 +117,40 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"js/guess.js":[function(require,module,exports) {
+})({"js/scoreboard-move.js":[function(require,module,exports) {
+function moveUsersInScoreboard() {
+  // Add all connected players to the guess room
+  var scores = document.getElementsByClassName('score'); // https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
+  // Sort innerHTML from high to low (score)
 
+  var sorted = [];
+
+  for (var i in scores) {
+    if (scores[i].nodeType === 1) {
+      // get rid of the whitespace text nodes
+      sorted.push(scores[i]);
+    }
+  }
+
+  sorted.sort(function (a, b) {
+    return a.innerHTML === b.innerHTML ? 0 : a.innerHTML < b.innerHTML ? 1 : -1;
+  }); // Remove 'score-' in id
+
+  var sortedNames = sorted.map(function (item) {
+    var id = item.id;
+    id = id.replace('score-', '');
+    return id;
+  });
+  var scoreboard = document.getElementsByClassName('scoreboard')[0];
+  scoreboard.innerHTML = '';
+  sortedNames.forEach(function (item, i) {
+    var place = i + 1;
+    var score = sorted[i].innerHTML;
+    score = score.toString();
+    console.log('item: ', score);
+    scoreboard.innerHTML += "<div class=\"scorecard score".concat(item, "\">\n      <p class=\"place place-").concat(item, "\">0").concat(place, "</p>\n      <p class=\"name name-").concat(item, "\">").concat(item, "</p>\n      <p class=\"score\" id=\"score-").concat(item, "\">").concat(score, "</p>\n    </div>");
+  });
+}
 },{}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -147,7 +179,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50412" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64559" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -323,5 +355,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../node_modules/parcel/src/builtins/hmr-runtime.js","js/guess.js"], null)
-//# sourceMappingURL=/guess.1ee787e1.js.map
+},{}]},{},["../node_modules/parcel/src/builtins/hmr-runtime.js","js/scoreboard-move.js"], null)
+//# sourceMappingURL=/scoreboard-move.23e8d832.js.map

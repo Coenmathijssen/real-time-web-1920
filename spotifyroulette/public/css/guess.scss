@@ -131,11 +131,13 @@
         font-family: gotham, arial, sans-serif;
         font-weight: 500;
         border-radius: 5px;
-        // visibility: hidden;
+        visibility: hidden;
+        cursor: pointer;
+        transition: all .2s;
 
-        // &.visible {
-        //   visibility: visible;
-        // }
+        &.visible {
+          visibility: visible;
+        }
       }
     }
   }

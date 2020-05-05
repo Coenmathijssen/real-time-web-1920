@@ -1,3 +1,6 @@
+// Import functions
+import moveUsersInScoreboard from './scoreboard-move.js'
+
 // Make connection
 const socket = io()
 
@@ -61,7 +64,6 @@ socket.on('set pin', roomPin => {
 })
 
 // Join game
-// Creating game
 const joinGameButton = document.getElementById('join-game')
 joinGameButton.addEventListener('click', () => {
   console.log('working client')
@@ -146,7 +148,7 @@ socket.on('game commands', song => {
   // Trigger timer
   const timer = document.getElementsByClassName('bar-over')[0]
   timer.classList.add('visible')
-  timer.style.transition = 'all 10s linear'
+  timer.style.transition = 'all 30s linear'
   timer.style.width = '0px'
 
   // Update right anwser visually
@@ -157,7 +159,7 @@ socket.on('game commands', song => {
   setTimeout(() => {
     document.getElementById('audio-play').pause()
   },
-  10000)
+  25000)
 
   // Render the score page
   setTimeout(() => {
@@ -169,18 +171,19 @@ socket.on('game commands', song => {
     timer.style.transition = 'all 0s linear'
     timer.style.width = 'calc(100% - 10px)'
   },
-  10001)
+  25001)
 
   // Render the guess page again
   setTimeout(() => {
     score.classList.remove('visible')
     guess.classList.add('visible')
   },
-  15001)
+  30001)
 
   // Enable users to click on a answer again
   answers.forEach(function (answer) {
     answer.addEventListener('click', submitAnswer)
+    answer.style.backgroundColor = '#121623'
   })
 })
 
@@ -205,6 +208,7 @@ answers.forEach(function (answer) {
 
 function submitAnswer () {
   socket.emit('answer submitted', this.id)
+  this.style.backgroundColor = '#F6546A'
 
   // Remove all event listeners when item is clicked, to prevent from clicking multiple times
   answers.forEach(function (answer) {
@@ -219,66 +223,3 @@ socket.on('update score', (user, score) => {
 
   moveUsersInScoreboard()
 })
-
-function moveUsersInScoreboard () {
-  // Add all connected players to the guess room
-  const scores = document.getElementsByClassName('score')
-
-  // https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
-  // Sort innerHTML from high to low (score)
-  const sorted = []
-  for (var i in scores) {
-    if (scores[i].nodeType === 1) { // get rid of the whitespace text nodes
-      sorted.push(scores[i])
-    }
-  }
-
-  sorted.sort((a, b) => {
-    return a.innerHTML === b.innerHTML
-      ? 0
-      : (a.innerHTML < b.innerHTML ? 1 : -1)
-  })
-
-
-  // Remove 'score-' in id
-  const sortedNames = sorted.map(item => {
-    let id = item.id
-    id = id.replace('score-', '')
-    return id
-  })
-
-  let scoreboard = document.getElementsByClassName('scoreboard')[0]
-  scoreboard.innerHTML = ''
-
-  sortedNames.forEach((item, i) => {
-    let place = i + 1
-    let score = sorted[i].innerHTML
-    score = score.toString()
-    console.log('item: ', score)
-
-    scoreboard.innerHTML +=
-    `<div class="scorecard score${item}">
-      <p class="place place-${item}">0${place}</p>
-      <p class="name name-${item}">${item}</p>
-      <p class="score" id="score-${item}">${score}</p>
-    </div>`
-  })
-}
-
-// // Animating score
-// function animateValue (element, start, end, duration) {
-//   var range = end - start
-//   var current = start
-//   var increment = end > start ? 1 : -1
-//   var stepTime = Math.abs(Math.floor(duration / range))
-//   var obj = document.getElementById(id)
-//   var timer = setInterval(() => {
-//     current += increment
-//     obj.innerHTML = current
-//     if (current === end) {
-//       clearInterval(timer)
-//     }
-//   }, stepTime)
-// }
-
-// animateValue('value', 100, 25, 5000)
