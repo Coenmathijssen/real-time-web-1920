@@ -135,6 +135,51 @@ This will return the cleaned data as:
 ]
 ```
 
+## Database 
+For storing user and room data, I'm using [mongodb](https://www.mongodb.com/). This keeps the server space from overflowing. On top of that, my app won't break when the server goes down for a minute. For storing room and user data, I've used the following scheme. This is required for mongodb to work.
+
+```javascript
+// Mongoose schema
+const Schema = mongoose.Schema
+const roomSchema = new Schema({
+  pin: String,
+  hostName: String,
+  duration: String,
+  players: {
+    type: Array,
+    default: []
+  },
+  songsTotal: {
+    type: Array,
+    default: []
+  },
+  songsSelection: {
+    type: Array,
+    default: []
+  }
+})
+
+const UserSchema = new Schema({
+  username: String,
+  connectedRoom: String,
+  songs: {
+    type: Array,
+    default: []
+  }
+})
+
+// // Model
+const Room = mongoose.model('Room', roomSchema)
+const User = mongoose.model('User', UserSchema)
+```
+
+## Socket events
+<details>
+<summary>
+Create Room
+</summary>
+The user fills out his name and chooses the length of the game: 5min, 10min or 15min. A submit button is clicked, firing a `create room` event. Here, a random pin is created 
+</details>
 
 
 ## Author and license
