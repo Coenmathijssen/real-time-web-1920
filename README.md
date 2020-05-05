@@ -769,5 +769,62 @@ socket.on('answer submitted', answer => {
 ```
 </details>
 
+## Creating and modifying data
+In this function, I check for objects with the same .song key. If so, I will only keep one
+
+```javascript
+function filterDuplicates (songs) {
+  const unique = songs.filter((elem, index, self) => self.findIndex((t) => {
+    // https://stackoverflow.com/questions/36032179/remove-duplicates-in-an-object-array-javascript
+    return (t.song === elem.song)
+  }) === index)
+
+  return unique
+}
+```
+
+In this function, I pick x amount of random songs out of an array to use in the game
+  
+```javascript
+// Pick random items out of array
+// https://stackoverflow.com/questions/19269545/how-to-get-n-no-elements-randomly-from-an-array
+function randomSongPick (array, amount) {
+  return array
+    .map(x => ({ x, r: Math.random() }))
+    .sort((a, b) => a.r - b.r)
+    .map(a => a.x)
+    .slice(0, amount)
+}
+```
+
+Here, I create an array of html elements. I sort this array on the value (number) in the innerHTML. Next, I remove part of an ID.
+
+```javascript
+// Add all connected players to the guess room
+  const scores = document.getElementsByClassName('score')
+
+  // https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
+  // Sort innerHTML from high to low (score)
+  const sorted = []
+  for (var i in scores) {
+    if (scores[i].nodeType === 1) { // get rid of the whitespace text nodes
+      sorted.push(scores[i])
+    }
+  }
+
+  sorted.sort((a, b) => {
+    return a.innerHTML === b.innerHTML
+      ? 0
+      : (a.innerHTML < b.innerHTML ? 1 : -1)
+  })
+
+  // Remove 'score-' in id
+  const sortedNames = sorted.map(item => {
+    let id = item.id
+    id = id.replace('score-', '')
+    return id
+  })
+```
+
 ## Author and license
 Coen Mathijssen - MIT license
