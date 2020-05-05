@@ -64,7 +64,7 @@ The flow Spotify OAuth flow in short:
 3. Get access and refresh token
 4. Now you are able to fetch the user's Spotify data through a fetch with the access code.
 
-For ellaboration, see [Spotify Authorization Guide](https://developer.spotify.com/documentation/general/guides/authorization-guide/)
+For elaboration, see [Spotify Authorization Guide](https://developer.spotify.com/documentation/general/guides/authorization-guide/)
 
 ```
 Base URL:
@@ -178,7 +178,98 @@ const User = mongoose.model('User', UserSchema)
 <summary>
 Create Room
 </summary>
-The user fills out his name and chooses the length of the game: 5min, 10min or 15min. A submit button is clicked, firing a `create room` event. Here, a random pin is created 
+The user fills out his name and chooses the length of the game: 5min, 10min or 15min. A submit button is clicked, firing a `create room` event to the server. Here, a random pin is created. In this event, a new room and a new user is created and stored in the database. The created user gets added to the room. The pin of the room is set and a 'ready to play' button appears only for the host of the room. This gives the host the exclusive permission to start the game and not the other players.
+    
+**Client side**
+
+```javascript
+// Creating game
+const createGameButton = document.getElementById('create-game')
+createGameButton.addEventListener('click', () => {
+  const playerName = document.getElementsByName('playerName')[0].value
+  const duration = document.querySelector('input[name="duration"]:checked').value
+  socket.emit('create room', {
+    pin: null,
+    hostName: playerName,
+    duration: duration,
+    players: [
+      playerName
+    ]
+  })
+})
+```
+
+**Server side**
+
+```javascript
+socket.on('create room', data => {
+    const roomPin = getRandomNumber(1000000)
+
+    // Add username to every song object
+    const cleanedDataWithName = addUsername(cleanedData, data.hostName)
+
+    // Create new user
+    const user = {
+      username: data.hostName,
+      connectedRoom: roomPin.toString(),
+      songs: cleanedDataWithName
+    }
+
+    // Save new user to database
+    const newUser = new User(user)
+    console.log('new user: ', newUser)
+
+    newUser.save(err => {
+      if (err) {
+        console.log('save failed: ', err)
+      } else {
+        console.log('user has been saved')
+      }
+    })
+
+    // Create new room with right data
+    const room = {
+      pin: roomPin,
+      hostName: data.hostName,
+      duration: data.duration,
+      players: [
+        data.hostName
+      ],
+      songsTotal: cleanedDataWithName
+    }
+
+    // Save new room to database
+    const newRoom = new Room(room)
+
+    newRoom.save(err => {
+      if (err) {
+        console.log('save failed: ', err)
+      } else {
+        console.log('room has been saved')
+      }
+    })
+
+    // Set username of socket
+    socket.username = data.hostName
+    socket.room = roomPin
+    console.log(socket.room)
+
+    // Let user who created room join it
+    socket.join(roomPin)
+
+    // Let play button appear for the one who created the room
+    socket.emit('play button appear')
+
+    // Set the right room pin in waiting room
+    io.in(roomPin).emit('set pin', roomPin)
+
+    // Add user to waiting room
+    io.in(roomPin).emit('user joined', data.hostName)
+
+    // Increase amount of players ready by 1
+    socket.emit('increment', 1)
+  })
+```
 </details>
 
 
