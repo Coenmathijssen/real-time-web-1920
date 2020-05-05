@@ -197,6 +197,31 @@ createGameButton.addEventListener('click', () => {
     ]
   })
 })
+
+// Add users in waiting room, game and scoreboard
+socket.on('user joined', user => {
+  // Add users in waiting room
+  let playerList = document.getElementsByClassName('players')[0]
+  playerList.innerHTML += `<p class="${user}">${user}</p>`
+
+  // // Add users in game
+  // let players = document.getElementsByClassName('players')[1]
+  // players.innerHTML += `<p id="${user}" class="answer">${user}</p>`
+
+  let scoreboard = document.getElementsByClassName('scoreboard')[0]
+  scoreboard.innerHTML +=
+  `<div class="scorecard score${user}">
+    <p class="place place-${user}">01</p>
+    <p class="name name-${user}">${user}</p>
+    <p class="score" id="score-${user}"></p>
+  </div>`
+})
+
+// Update counter of players ready
+socket.on('increment', amount => {
+  let playersReady = document.getElementById('players-ready')
+  playersReady.textContent = amount
+})
 ```
 
 **Server side**
@@ -272,6 +297,477 @@ socket.on('create room', data => {
 ```
 </details>
 
+<details>
+<summary>
+Join room requests
+</summary>
+Here, a user fills in his name and the required game pin. On the submit button, a 'join room request' is fired to the server. The server reads out the data passed through the socket event. Then, the server checks if the room exists, if the room isn't full (max 10 players). If everything checks out, a new user is created and stored in the database. The user is added to the room and the waiting room is updated visually.
+    
+**client side**
+
+```javascript
+// Join game
+const joinGameButton = document.getElementById('join-game')
+joinGameButton.addEventListener('click', () => {
+  console.log('working client')
+  const playerName = document.getElementsByName('playerName')[1].value
+  const pin = document.getElementsByName('groupName')[0].value
+
+  socket.emit('join room request', {
+    pin: pin,
+    playerName: playerName
+  })
+})
+
+// Add users in waiting room, game and scoreboard
+socket.on('user joined', user => {
+  // Add users in waiting room
+  let playerList = document.getElementsByClassName('players')[0]
+  playerList.innerHTML += `<p class="${user}">${user}</p>`
+
+  // // Add users in game
+  // let players = document.getElementsByClassName('players')[1]
+  // players.innerHTML += `<p id="${user}" class="answer">${user}</p>`
+
+  let scoreboard = document.getElementsByClassName('scoreboard')[0]
+  scoreboard.innerHTML +=
+  `<div class="scorecard score${user}">
+    <p class="place place-${user}">01</p>
+    <p class="name name-${user}">${user}</p>
+    <p class="score" id="score-${user}"></p>
+  </div>`
+})
+
+// Update counter of players ready
+socket.on('increment', amount => {
+  let playersReady = document.getElementById('players-ready')
+  playersReady.textContent = amount
+})
+```
+
+**server side**
+
+```javascript
+socket.on('join room request', data => {
+    // Convert entered user pin to number
+    const roomPin = data.pin
+
+    // Find the right room
+    Room.findOne({ pin: roomPin }, (err, foundRoom) => {
+      if (err) {
+        console.log('not found', err)
+        socket.emit('denied', roomPin)
+      } else {
+        if (!foundRoom) {
+          // If the room doesn't exist, send error
+          console.log('User not found in database')
+          socket.emit('denied', `The entered pin of ${roomPin} is not valid, please try again`)
+          return
+        }
+
+        // Set username of socket
+        socket.username = data.playerName
+
+        // Room is not full and player can enter
+        if (foundRoom.players.length < 10) {
+          // Add username to song object
+          const cleanedDataWithName = addUsername(cleanedData, data.playerName)
+
+          // Create new user
+          const user = {
+            username: data.playerName,
+            connectedRoom: roomPin,
+            songs: cleanedDataWithName
+          }
+
+          // Save new user to database
+          const newUser = new User(user)
+          console.log(newUser)
+
+          newUser.save(err => {
+            if (err) {
+              console.log('save failed: ', err)
+            } else {
+              console.log('user has been saved')
+            }
+          })
+
+          // Save user in room
+          foundRoom.players.push(data.playerName)
+
+          // Save songs of users in room
+          cleanedDataWithName.forEach(song => {
+            foundRoom.songsTotal.push(song)
+          })
+
+          // Save editted room to databse
+          foundRoom.save((err, updatedRoom) => {
+            if (err) {
+              console.log('failed to save room', err)
+            }
+          })
+
+          // Let the user also show the users who joined before him
+          foundRoom.players.forEach(player => {
+            if (player !== data.playerName) {
+              socket.emit('user joined', player)
+            }
+          })
+
+          // Let user join room
+          socket.join(roomPin)
+          io.in(roomPin).emit('set pin', roomPin)
+          socket.emit('accepted')
+
+          // Set the roomPin for user
+          io.in(roomPin).emit('set pin', roomPin)
+
+          // Add user in the waiting room (visually)
+          io.in(roomPin).emit('user joined', data.playerName)
+          io.in(roomPin).emit('increment', foundRoom.players.length)
+        } else {
+          // If the room is full, send error
+          console.log('Room is full')
+          socket.emit('denied', `The room with pin ${roomPin} is full, try again in a bit`)
+        }
+      }
+    })
+  })
+```
+</details>
+
+<details>
+<summary>
+Accepted / Denied (room request)
+</summary>
+If the room is not full and the pin is valid, the client gets sent an 'accepted'. On this socket event, the waiting room appears. If it doesn't check out, the client gets sent an 'denied'. On this socket event, an alert is shown with the reason why they didn't get through.
+    
+**client side**
+
+```javascript
+socket.on('accepted', roomPin => {
+  joinGame.classList.remove('visible')
+  waitingRoom.classList.add('visible')
+})
+
+socket.on('denied', message => {
+  window.alert(message)
+})
+```
+</details>
+
+<details>
+<summary>
+Disconnect
+</summary>
+When a user disconnects, a lot needs to happen server side. First I check if the socket is connected to any room with the help of the database. If so, I need to filter out the songs which came from that user. Next, I delete the player from the room players list. If the player list is now empty (socket was the last player), I delete the whole room from the database. At last, I delete the user from the database. 
+    
+**server side**
+
+```javascript 
+socket.on('disconnect', () => {
+    // Check if user is connected to any room
+    User.findOne({ username: socket.username, connectedRoom: { $exists: true, $ne: null } }, (err, foundUser) => {
+      console.log(foundUser)
+      if (err) {
+        console.log('not found', err)
+      } else {
+        if (foundUser !== null) {
+          // Find the right room through the user
+          Room.findOne({ pin: foundUser.connectedRoom }, (err, foundRoom) => {
+            if (err) {
+              console.log('not found', err)
+            } else {
+              if (foundRoom.players) {
+                // Delete player from room player song array
+                foundRoom.players = foundRoom.players.filter(player => {
+                  return player !== socket.username
+                })
+
+                // Delete player songs from room song array
+                foundRoom.songsTotal = foundRoom.songsTotal.filter(song => {
+                  if (song.username !== socket.username) {
+                    return song
+                  }
+                })
+
+                // Update db
+                foundRoom.save((err, updatedObject) => {
+                  if (err) {
+                    console.log('failed to update room', err)
+                  }
+                })
+                // Delete room if no players are in it
+              } if (foundRoom.players.length === 0) {
+                Room.findOneAndDelete(foundRoom)
+                console.log('room deleted')
+              }
+
+              // Update waiting room visually for all sockets
+              io.in(foundRoom.pin).emit('user left', socket.username)
+              io.in(foundRoom.pin).emit('increment', foundRoom.players.length)
+            }
+          })
+        }
+      }
+    })
+
+    User.findOneAndDelete({username: socket.username})
+  })
+```
+</details>
+
+<details>
+<summary>
+Start game
+</summary>
+When the host clicks the play button, the 'start game' event is fired. The server now needs to find the right room in the database. In this room, the duplicate songs are filtered out. Then, a x amount of random songs get picked. This amount depends on the length of the game, set by the host. The game starts and the songs get sent to the client one by one, with a delay.
+    
+**Client side**
+
+```javascript
+// Start game
+socket.on('starting', () => {
+  document.getElementById('ready-to-play').classList.remove('visible')
+  waitingRoom.classList.remove('visible')
+  guess.classList.add('visible')
+})
+
+socket.on('game commands', song => {
+  if (song !== undefined) {
+    // Insert song and artist name
+    const songMeta = document.getElementsByClassName('song-meta')[0]
+    songMeta.innerHTML = `
+      <h1>${song.song}</h1>
+      <h2>${song.artists[0]}</h2>
+    `
+
+    // Insert audio
+    const audio = document.getElementById('audio')
+    audio.innerHTML = `<audio id="audio-play" src="${song.sample}"></audio>`
+    document.getElementById('audio-play').play()
+  }
+
+  // Trigger timer
+  const timer = document.getElementsByClassName('bar-over')[0]
+  timer.classList.add('visible')
+  timer.style.transition = 'all 10s linear'
+  timer.style.width = '0px'
+
+  // Update right anwser visually
+  if (song.username !== undefined) {
+    document.getElementById('answer-user').innerHTML = song.username
+  }
+  // Pause song after 10 seconds
+  setTimeout(() => {
+    document.getElementById('audio-play').pause()
+  },
+  10000)
+
+  // Render the score page
+  setTimeout(() => {
+    guess.classList.remove('visible')
+    timer.classList.remove('visible')
+    score.classList.add('visible')
+
+    // Reset timer
+    timer.style.transition = 'all 0s linear'
+    timer.style.width = 'calc(100% - 10px)'
+  },
+  10001)
+
+  // Render the guess page again
+  setTimeout(() => {
+    score.classList.remove('visible')
+    guess.classList.add('visible')
+  },
+  15001)
+
+  // Enable users to click on a answer again
+  answers.forEach(function (answer) {
+    answer.addEventListener('click', submitAnswer)
+  })
+})
+```
+
+**Server side**
+
+```javascript
+socket.on('start game', () => {
+    // Check if user is connected to any room
+    User.findOne({ username: socket.username, connectedRoom: { $exists: true, $ne: null } }, (err, foundUser) => {
+      if (err) {
+        console.log(err)
+      } else {
+        if (foundUser !== null) {
+          // Find the right room through the user
+          Room.findOne({ pin: foundUser.connectedRoom }, (err, foundRoom) => {
+            if (err) {
+              console.log('not found', err)
+            } else {
+              // filter out duplicate songs
+              const noDuplicateSongs = filterDuplicates(foundRoom.songsTotal)
+
+              // Determine amount of used songs for game, according to duration
+              if (foundRoom.duration === '5min') {
+                foundRoom.songsSelection = randomSongPick(noDuplicateSongs, 9)
+              } else if (foundRoom.duration === '10min') {
+                foundRoom.songsSelection = randomSongPick(noDuplicateSongs, 18)
+              } else if (foundRoom.duration === '15min') {
+                foundRoom.songsSelection = randomSongPick(noDuplicateSongs, 27)
+              }
+
+              // Update db
+              foundRoom.save((err, updatedObject) => {
+                if (err) {
+                  console.log('failed to update room', err)
+                }
+              })
+            }
+            // Add players to guess room
+            io.in(foundUser.connectedRoom).emit('add players', foundRoom.players)
+            socket.emit('add players', foundRoom.players)
+
+            // START GAME
+            gameStart(foundRoom)
+          })
+          io.in(foundUser.connectedRoom).emit('starting')
+        }
+      }
+    })
+  })
+  
+  // Pick random items out of array
+function randomSongPick (array, amount) {
+  return array
+    .map(x => ({ x, r: Math.random() }))
+    .sort((a, b) => a.r - b.r)
+    .map(a => a.x)
+    .slice(0, amount)
+}
+
+function filterDuplicates (songs) {
+  const unique = songs.filter((elem, index, self) => self.findIndex((t) => {
+    // https://stackoverflow.com/questions/36032179/remove-duplicates-in-an-object-array-javascript
+    return (t.song === elem.song)
+  }) === index)
+
+  return unique
+}
+
+function gameStart (room) {
+  io.in(room.pin).emit('game commands')
+
+  // Wait 10 seconds with every iteration
+  const interval = 15000
+  room.songsSelection.forEach(function (song, index) {
+    setTimeout(() => {
+      io.in(room.pin).emit('game commands', song)
+      io.in(room.pin).emit('update answer', song.username)
+    }, index * interval)
+  })
+}
+```
+</details>
+
+<details>
+<summary>
+Answer submitted
+</summary>
+I have an eventListener on every possible answer. These anwser have an unique id with the name of the player. This gets sent to the server. I check if the answer is correct. Then I update the score and sent an 'update score' event back to the server. On this 'update score' event in the client. I sort the player with the highest score to the lowest score. Next, I update the scoreboard.
+    
+**client side**
+
+```javascript
+socket.on('update score', (user, score) => {
+  console.log(user)
+  console.log(document.getElementById(`score-${user}`))
+  document.getElementById(`score-${user}`).textContent = score
+
+  moveUsersInScoreboard()
+})
+
+function moveUsersInScoreboard () {
+  // Add all connected players to the guess room
+  const scores = document.getElementsByClassName('score')
+
+  // https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
+  // Sort innerHTML from high to low (score)
+  const sorted = []
+  for (var i in scores) {
+    if (scores[i].nodeType === 1) { // get rid of the whitespace text nodes
+      sorted.push(scores[i])
+    }
+  }
+
+  sorted.sort((a, b) => {
+    return a.innerHTML === b.innerHTML
+      ? 0
+      : (a.innerHTML < b.innerHTML ? 1 : -1)
+  })
+
+  // Remove 'score-' in id
+  const sortedNames = sorted.map(item => {
+    let id = item.id
+    id = id.replace('score-', '')
+    return id
+  })
+
+  let scoreboard = document.getElementsByClassName('scoreboard')[0]
+  scoreboard.innerHTML = ''
+
+  sortedNames.forEach((item, i) => {
+    let place = i + 1
+    let score = sorted[i].innerHTML
+    score = score.toString()
+    console.log('item: ', score)
+
+    scoreboard.innerHTML +=
+    `<div class="scorecard score${item}">
+      <p class="place place-${item}">0${place}</p>
+      <p class="name name-${item}">${item}</p>
+      <p class="score" id="score-${item}">${score}</p>
+    </div>`
+  })
+}
+```
+
+**server side**
+
+```javascript
+let songsPassed = 0
+let score = 0
+
+socket.on('answer submitted', answer => {
+    User.findOne({ username: socket.username, connectedRoom: { $exists: true, $ne: null } }, (err, foundUser) => {
+      if (err) {
+        console.log(err)
+      } else {
+        if (foundUser !== null) {
+          // Find the right room through the user
+          Room.findOne({ pin: foundUser.connectedRoom }, (err, foundRoom) => {
+            if (err) {
+              console.log('not found', err)
+            } else {
+              // Check if anwser is correct
+              if (answer === foundRoom.songsSelection[songsPassed].username) {
+                score = score + 100
+                // User got it right, update anwser
+                io.in(foundUser.connectedRoom).emit('update score', foundUser.username, score)
+                songsPassed++
+              } else {
+                // User got it wrong, update anwser
+                io.in(foundUser.connectedRoom).emit('update score', foundUser.username, score)
+                songsPassed++
+              }
+            }
+          })
+        }
+      }
+    })
+  })
+```
+</details>
 
 ## Author and license
 Coen Mathijssen - MIT license
