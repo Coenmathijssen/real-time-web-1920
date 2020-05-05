@@ -8,7 +8,6 @@ const server = app.listen(process.env.PORT || 3000, () => {
   console.log('listening on port: ', process.env.PORT)
 })
 
-
 //  Serve html, css and js files in the static directory
 app.use(express.static(path.join(__dirname, 'dist')))
 
