@@ -1,123 +1,9 @@
-# Real Time Web - Chat app
+# Spotify Roulette
+## Spotify Roulette
+For my concept I'm using the Spotify API. How does my concept work? Before entering my webapp, you need to give permission to read out your Spotify credentials and your liked songs. You are able to create and enter 'rooms' with a unique pin. Your own space for you and your friends. You're able to enter a room with a code, similary like Kahoot. The webapp serves the users a random song from one of the playlist of a user. All friends have to guess to which user the song belongs. If you get it right, you get 100 points. If you get more points, you can add more songs to a co-created playlist (of your friends). The ultimate winner is also able to rearrange the songs in the co-created playlist. Now you have a playlist together, which you can use at a party!
 
-<img width="525" alt="Screenshot 2020-04-09 at 18 28 04" src="https://user-images.githubusercontent.com/43337909/78917958-ed65b880-7a8f-11ea-8321-dcc7a99fb7d6.png">
-
-
-This assignment is to help you understand the concept of communicating and changing states through a Web Socket. For this assignment, Socket.io is used for creating a basic chat application.
-
-## Dependencies
-- Express
-- Socket.io
-- Dotenv
-- Nodemon
-- Parcel
-
-## Basic usage example of Socket.io
-HTML for sending a message
-
-```html
-<div class="messaging-container">
-  <input type="text" id="message" placeholder="Message">
-  <button id="send">Verstuur</button>
-</div>
-```
-
-Receiving the message server-side, and emitting to all connected sockets
-
-```javascript
-const io = socket(server)
-io.on('connection', (socket) => {
-  socket.username = 'anonymous'
-
-  // Handle chat event
-  socket.on('chat', (data) => {
-    io.sockets.emit('chat', data.message, socket.username)
-  })
-})
-```
-
-Displaying the data sent from server on all sockets, client-side
-
-```javascript
-socket.on('chat', (data, username) => {
-  output.innerHTML += `<p><strong>${username}: </strong>${data}</p>`
-  feedback.innerHTML = ''
-})
-```
-
-A detailed description can be found at https://socket.io/
-
-## Features
-### Swear words
-As an extra feature, I'm filtering out swear words and replace them with *. 
-
-First I made an array of swear words:
-
-```javascript 
-let swearList = ['kanker', 'kut', 'hoer', 'lul', 'eikel', 'mongool', '4r5e', '5h1t', '5hit', 'a55', 'anal', 'anus', 'ar5e', 'arrse', 'arse', 'ass', 'ass-fucker', 'asses', 'assfucker', 'assfukka', 'asshole', 'assholes', 'asswhole', 'a_s_s', 'b!tch', 'b00bs', 'b17ch', 'b1tch', 'ballbag', 'balls', 'ballsack', 'bastard', 'beastial', 'beastiality', 'bellend', 'bestial', 'bestiality', 'bi+ch', 'biatch', 'bitch', 'bitcher', 'bitchers', 'bitches', 'bitchin', 'bitching', 'bloody', 'blow job', 'blowjobs', 'boiolas', 'bollock', 'bollok', 'boner', 'boob', 'boobs', 'booobs', 'boooobs', 'booooobs', 'booooooobs', 'breasts', 'buceta', 'bugger', 'bum', 'bunny fucker', 'butt', 'butthole', 'buttmuch', 'buttplug', 'c0ck', 'c0cksucker', 'carpet muncher', 'cawk', 'chink', 'cipa', 'cl1t', 'clit', 'clitoris', 'clits', 'cnut', 'cock', 'cock-sucker', 'cockface', 'cockhead', 'cockmunch', 'cockmuncher', 'cocks', 'cocksuck', 'cocksucked', 'cocksucker', 'cocksucking', 'cocksucks', 'cocksuka', 'cocksukka', 'cok', 'cokmuncher', 'coksucka', 'coon', 'cox', 'crap', 'cum', 'cummer', 'cumming', 'cums', 'cumshot', 'cunilingus', 'cunillingus', 'cunnilingus', 'cunt', 'cuntlick', 'cuntlicker', 'cuntlicking', 'cunts', 'cyalis', 'cyberfuc', 'cyberfuck', 'cyberfucked', 'cyberfucker', 'cyberfuckers', 'cyberfucking', 'd1ck', 'damn', 'dick', 'dickhead', 'dildo', 'dildos', 'dink', 'dinks', 'dirsa', 'dlck', 'dog-fucker', 'doggin', 'dogging', 'donkeyribber', 'doosh', 'duche', 'dyke', 'ejaculate', 'ejaculated', 'ejaculates', 'ejaculating', 'ejaculatings', 'ejaculation', 'ejakulate', 'f4nny', 'fag', 'fagging', 'faggitt', 'faggot', 'faggs', 'fagot', 'fagots', 'fags', 'fanny', 'fannyflaps', 'fannyfucker', 'fanyy', 'fatass', 'fcuk', 'fcuker', 'fcuking', 'feck', 'fecker', 'felching', 'fellate', 'fellatio', 'fingerfuck', 'fingerfucked', 'fingerfucker', 'fingerfuckers', 'fingerfucking', 'fingerfucks', 'fistfuck', 'fistfucked', 'fistfucker', 'fistfuckers', 'fistfucking', 'fistfuckings', 'fistfucks', 'flange', 'fook', 'fooker', 'fuck', 'fucka', 'fucked', 'fucker', 'fuckers', 'fuckhead', 'fuckheads', 'fuckin', 'fucking', 'fuckings', 'fuckingshitmotherfucker', 'fuckme', 'fucks', 'fuckwhit', 'fuckwit', 'fudge packer', 'fudgepacker', 'fuk', 'fuker', 'fukker', 'fukkin', 'fuks', 'fukwhit', 'fukwit', 'fux', 'fux0r', 'f_u_c_k', 'gangbang', 'gangbanged', 'gangbangs', 'gaylord', 'gaysex', 'goatse', 'God', 'god-dam', 'god-damned', 'goddamn', 'goddamned', 'hardcoresex', 'hell', 'heshe', 'hoar', 'hoare', 'hoer', 'homo', 'hore', 'horniest', 'horny', 'hotsex', 'jack-off', 'jackoff', 'jap', 'jerk-off', 'jism', 'jiz', 'jizm', 'jizz', 'kawk', 'knob', 'knobead', 'knobed', 'knobend', 'knobhead', 'knobjocky', 'knobjokey', 'kock', 'kondum', 'kondums', 'kum', 'kummer', 'kumming', 'kums', 'kunilingus', 'l3i+ch', 'l3itch', 'labia', 'lust', 'lusting', 'm0f0', 'm0fo', 'm45terbate', 'ma5terb8', 'ma5terbate', 'masochist', 'master-bate', 'masterb8', 'masterbat*', 'masterbat3', 'masterbate', 'masterbation', 'masterbations', 'masturbate', 'mo-fo', 'mof0', 'mofo', 'mothafuck', 'mothafucka', 'mothafuckas', 'mothafuckaz', 'mothafucked', 'mothafucker', 'mothafuckers', 'mothafuckin', 'mothafucking', 'mothafuckings', 'mothafucks', 'mother fucker', 'motherfuck', 'motherfucked', 'motherfucker', 'motherfuckers', 'motherfuckin', 'motherfucking', 'motherfuckings', 'motherfuckka', 'motherfucks', 'muff', 'mutha', 'muthafecker', 'muthafuckker', 'muther', 'mutherfucker', 'n1gga', 'n1gger', 'nazi', 'nigg3r', 'nigg4h', 'nigga', 'niggah', 'niggas', 'niggaz', 'nigger', 'niggers', 'nob', 'nob jokey', 'nobhead', 'nobjocky', 'nobjokey', 'numbnuts', 'nutsack', 'orgasim', 'orgasims', 'orgasm', 'orgasms', 'p0rn', 'pawn', 'pecker', 'penis', 'penisfucker', 'phonesex', 'phuck', 'phuk', 'phuked', 'phuking', 'phukked', 'phukking', 'phuks', 'phuq', 'pigfucker', 'pimpis', 'piss', 'pissed', 'pisser', 'pissers', 'pisses', 'pissflaps', 'pissin', 'pissing', 'pissoff', 'poop', 'porn', 'porno', 'pornography', 'pornos', 'prick', 'pricks', 'pron', 'pube', 'pusse', 'pussi', 'pussies', 'pussy', 'pussys', 'rectum', 'retard', 'rimjaw', 'rimming', 's hit', 's.o.b.', 'sadist', 'schlong', 'screwing', 'scroat', 'scrote', 'scrotum', 'semen', 'sex', 'sh!+', 'sh!t', 'sh1t', 'shag', 'shagger', 'shaggin', 'shagging', 'shemale', 'shi+', 'shit', 'shitdick', 'shite', 'shited', 'shitey', 'shitfuck', 'shitfull', 'shithead', 'shiting', 'shitings', 'shits', 'shitted', 'shitter', 'shitters', 'shitting', 'shittings', 'shitty', 'skank', 'slut', 'sluts', 'smegma', 'smut', 'snatch', 'son-of-a-bitch', 'spac', 'spunk', 's_h_i_t', 't1tt1e5', 't1tties', 'teets', 'teez', 'testical', 'testicle', 'tit', 'titfuck', 'tits', 'titt', 'tittie5', 'tittiefucker', 'titties', 'tittyfuck', 'tittywank', 'titwank', 'tosser', 'turd', 'tw4t', 'twat', 'twathead', 'twatty', 'twunt', 'twunter', 'v14gra', 'v1gra', 'vagina', 'viagra', 'vulva', 'w00se', 'wang', 'wank', 'wanker', 'wanky', 'whoar', 'whore', 'willies', 'willy', 'xrated', 'xxx']
-```
-
-When a message is sent, I'm filtering it with this function. It loops over every swear word and replaces all characters with astrixes. Then I heck for a matching swear word, and replacing it with the astrixes. The whole sentence gets returned.
-
-```javascript
-function filterSwearWords (sentence, swearList) {
-  let stringArray = sentence.split(' ')
-
-  // Credits for Joan helping me
-  swearList.forEach(swearWord => {
-    let astrix = ''
-
-    for (let i = 0; i < swearWord.length; i++) {
-      astrix += '*'
-    }
-    sentence = sentence.replace(new RegExp(swearWord, 'g'), `${astrix}`)
-  })
-
-  return sentence
-}
-```
-
-Now I'm broadcasting the message to all sockets listening
-
-```javascript
-// Handle chat event
-  socket.on('chat', (data) => {
-    Emitting to all sockets
-    let stringArray = data.message.split(' ')
-    console.log(stringArray)
-    data.message = filterSwearWords(data.message, swearList)
-    io.sockets.emit('chat', data.message, socket.username)
-  })
-```
-
-### Never the same username
-I'm checking if the chosen username is already active. If it is, I'm adding a random number after the chosen username. So that every user will be unique.
-
-```javascript
-// Create a username list
-let activeUsernames = []
-
-// Setting username
-  socket.on('setUsername', (data) => {
-    // Push username to array
-    if (activeUsernames.includes(data.username)) {
-      socket.username = data.username + getRandomNumber(10000)
-      activeUsernames.push(socket.username)
-      console.log(socket.username)
-    } else {
-      socket.username = data.username
-      activeUsernames.push(socket.username)
-    }
-
-    // Emitting joined user to all sockets
-    socket.broadcast.emit('userJoined', socket.username)
-    socket.emit('youJoined', socket.username)
-  })
-  
- function getRandomNumber (between) {
-  return Math.floor(Math.random() * between) + 1
-}
-```
+## Data lifecycle
+![data-lifecycle-new-01](https://user-images.githubusercontent.com/43337909/81066704-cc04ba80-8edd-11ea-91c7-9cbd15067f05.jpg)
 
 ## Install
 1. Open the terminal on your computer.
@@ -154,13 +40,849 @@ Deploy website on Heroku:
 4. Change the directory to 'dist'.
 5. Run the installation commands in your terminal.
 
+## Spotify API
+### OAuth
+The Spotify API is free to use for every developers account, when not using it for commercial purposes. So first, you need an account at [Spotify Developer](https://developer.spotify.com/dashboard/). In order to use the [OAuth 2.0](https://oauth.net/2/) for the Spotify API, you need the following variables:
+- Client ID
+- Client Secret
+- Redirect URI
+
+You can find all these values inside the Spotify Developer Dashboard. The Spotify Redirect URI needs to be set in your Spotify Dashboard. This URI has to be the same as your callback url. Otherwise the OAuth will fail. It's important to **remember that this route will change when you deploy your app**. Also, the client ID and Client Secret should **never be exposed to GitHub**. Never hardcode it in your files and always use something like a dotenv file. Here is an example of how it is used in my project:
+
+**.env.example**
+
+```
+CLIENT_ID='client id from your Spotify Developer account'
+CLIENT_SECRET='client from your Spotify Developer account'
+REDIRECT_URI='redirect URL'
+```
+
+The flow Spotify OAuth flow in short:
+1. Send user to Spotify, asking them to give permission for the application to read their Spotify data. 
+2. Spotify returns to application on a set callback url (redirect URI)
+2. Request necessery acces to access and refresh token with a fetch including .env data
+3. Get access and refresh token
+4. Now you are able to fetch the user's Spotify data through a fetch with the access code.
+
+For elaboration, see [Spotify Authorization Guide](https://developer.spotify.com/documentation/general/guides/authorization-guide/)
+
+```
+Base URL:
+'https://api.spotify.com/v1/me'
+
+Request:
+'user-read-private user-read-email user-library-read'
+```
+
+### Raw data
+Spotify returns an enormous amount of data. I only need a fraction of it, so I did some data cleaning. The raw data:
+
+```
+[ { added_at: '2020-05-04T09:10:50Z',
+    track:
+     { album: [Object],
+       artists: [Array],
+       available_markets: [Array],
+       disc_number: 1,
+       duration_ms: 237354,
+       explicit: false,
+       external_ids: [Object],
+       external_urls: [Object],
+       href: 'https://api.spotify.com/v1/tracks/4WYdnYz9C7zixJuWcy67FJ',
+       id: '4WYdnYz9C7zixJuWcy67FJ',
+       is_local: false,
+       name: 'Before Sunrise',
+       popularity: 41,
+       preview_url:
+        'https://p.scdn.co/mp3-preview/95972402492e888972c43a61c5c19a2369313d31?cid=efa2b81c38df42b693a38401bdbe7d04',
+       track_number: 1,
+       type: 'track',
+       uri: 'spotify:track:4WYdnYz9C7zixJuWcy67FJ'
+     }
+   },
+...
+]
+```
+
+### Cleaned data
+I really only need the song name, the artists and a mp3 sample. So I did a little bit of data cleaning before storing the data in the database:
+
+```javascript
+function cleanItems (data) {
+  const cleanedData = data.map(item => {
+    const track = item.track
+
+    return {
+      'song': track.name,
+      'artists': track.artists.map(artist => artist.name),
+      'sample': track.preview_url
+    }
+  })
+  // console.log('data cleaned: ', cleanedData)
+  return cleanedData
+}
+```
+
+This will return the cleaned data as:
+
+```
+[ { song: 'Before Sunrise',
+    artists: [ 'Gengahr' ],
+    sample:
+     'https://p.scdn.co/mp3-preview/95972402492e888972c43a61c5c19a2369313d31?cid=efa2b81c38df42b693a38401bdbe7d04' 
+  },
+...
+]
+```
+
+## Database 
+For storing user and room data, I'm using [mongodb](https://www.mongodb.com/). This keeps the server space from overflowing. On top of that, my app won't break when the server goes down for a minute. For storing room and user data, I've used the following scheme. This is required for mongodb to work.
+
+```javascript
+// Mongoose schema
+const Schema = mongoose.Schema
+const roomSchema = new Schema({
+  pin: String,
+  hostName: String,
+  duration: String,
+  players: {
+    type: Array,
+    default: []
+  },
+  songsTotal: {
+    type: Array,
+    default: []
+  },
+  songsSelection: {
+    type: Array,
+    default: []
+  }
+})
+
+const UserSchema = new Schema({
+  username: String,
+  connectedRoom: String,
+  songs: {
+    type: Array,
+    default: []
+  }
+})
+
+// // Model
+const Room = mongoose.model('Room', roomSchema)
+const User = mongoose.model('User', UserSchema)
+```
+
+## Socket events
+### Socket events overview
+**client to server**
+- `Create room` Event to create room with playername, songs and unique pin
+- `Join room request` Event to join a room with correct pin
+- `Disconnect` Socket disconnects
+- `Start game` Host starts game
+- `Answer submitted` The players submit an answer
+
+**server to client**
+- `Play button appear` Let a play button appear in the waiting room, but only for the host
+- `User joined` Add user to room visually
+- `Set pin` Set the right room pin in the waiting room, so users can invite other people
+- `Accepted / denied` Accept or deny a join room request, alert(issue) if denied. Add user visually if accepted
+- `Increment` Increment 'player ready' amount
+- `Add players` Add all players to the guessing page
+- `Starting` Display the guessing page and hide the waiting room page
+- `Game commands` Add audio, song name, artist and trigger timer
+- `Update score` Update scoreboard for all users
+
+### Socket events deepdive
+<details>
+<summary>
+Create Room
+</summary>
+The user fills out his name and chooses the length of the game: 5min, 10min or 15min. A submit button is clicked, firing a `create room` event to the server. Here, a random pin is created. In this event, a new room and a new user is created and stored in the database. The created user gets added to the room. The pin of the room is set and a 'ready to play' button appears only for the host of the room. This gives the host the exclusive permission to start the game and not the other players.
+    
+**Client side**
+
+```javascript
+// Creating game
+const createGameButton = document.getElementById('create-game')
+createGameButton.addEventListener('click', () => {
+  const playerName = document.getElementsByName('playerName')[0].value
+  const duration = document.querySelector('input[name="duration"]:checked').value
+  socket.emit('create room', {
+    pin: null,
+    hostName: playerName,
+    duration: duration,
+    players: [
+      playerName
+    ]
+  })
+})
+
+// Add users in waiting room, game and scoreboard
+socket.on('user joined', user => {
+  // Add users in waiting room
+  let playerList = document.getElementsByClassName('players')[0]
+  playerList.innerHTML += `<p class="${user}">${user}</p>`
+
+  // // Add users in game
+  // let players = document.getElementsByClassName('players')[1]
+  // players.innerHTML += `<p id="${user}" class="answer">${user}</p>`
+
+  let scoreboard = document.getElementsByClassName('scoreboard')[0]
+  scoreboard.innerHTML +=
+  `<div class="scorecard score${user}">
+    <p class="place place-${user}">01</p>
+    <p class="name name-${user}">${user}</p>
+    <p class="score" id="score-${user}"></p>
+  </div>`
+})
+
+// Update counter of players ready
+socket.on('increment', amount => {
+  let playersReady = document.getElementById('players-ready')
+  playersReady.textContent = amount
+})
+```
+
+**Server side**
+
+```javascript
+socket.on('create room', data => {
+    const roomPin = getRandomNumber(1000000)
+
+    // Add username to every song object
+    const cleanedDataWithName = addUsername(cleanedData, data.hostName)
+
+    // Create new user
+    const user = {
+      username: data.hostName,
+      connectedRoom: roomPin.toString(),
+      songs: cleanedDataWithName
+    }
+
+    // Save new user to database
+    const newUser = new User(user)
+    console.log('new user: ', newUser)
+
+    newUser.save(err => {
+      if (err) {
+        console.log('save failed: ', err)
+      } else {
+        console.log('user has been saved')
+      }
+    })
+
+    // Create new room with right data
+    const room = {
+      pin: roomPin,
+      hostName: data.hostName,
+      duration: data.duration,
+      players: [
+        data.hostName
+      ],
+      songsTotal: cleanedDataWithName
+    }
+
+    // Save new room to database
+    const newRoom = new Room(room)
+
+    newRoom.save(err => {
+      if (err) {
+        console.log('save failed: ', err)
+      } else {
+        console.log('room has been saved')
+      }
+    })
+
+    // Set username of socket
+    socket.username = data.hostName
+    socket.room = roomPin
+    console.log(socket.room)
+
+    // Let user who created room join it
+    socket.join(roomPin)
+
+    // Let play button appear for the one who created the room
+    socket.emit('play button appear')
+
+    // Set the right room pin in waiting room
+    io.in(roomPin).emit('set pin', roomPin)
+
+    // Add user to waiting room
+    io.in(roomPin).emit('user joined', data.hostName)
+
+    // Increase amount of players ready by 1
+    socket.emit('increment', 1)
+  })
+```
+</details>
+
+<details>
+<summary>
+Join room request
+</summary>
+Here, a user fills in his name and the required game pin. On the submit button, a 'join room request' is fired to the server. The server reads out the data passed through the socket event. Then, the server checks if the room exists, if the room isn't full (max 10 players). If everything checks out, a new user is created and stored in the database. The user is added to the room and the waiting room is updated visually.
+    
+**client side**
+
+```javascript
+// Join game
+const joinGameButton = document.getElementById('join-game')
+joinGameButton.addEventListener('click', () => {
+  console.log('working client')
+  const playerName = document.getElementsByName('playerName')[1].value
+  const pin = document.getElementsByName('groupName')[0].value
+
+  socket.emit('join room request', {
+    pin: pin,
+    playerName: playerName
+  })
+})
+
+// Add users in waiting room, game and scoreboard
+socket.on('user joined', user => {
+  // Add users in waiting room
+  let playerList = document.getElementsByClassName('players')[0]
+  playerList.innerHTML += `<p class="${user}">${user}</p>`
+
+  // // Add users in game
+  // let players = document.getElementsByClassName('players')[1]
+  // players.innerHTML += `<p id="${user}" class="answer">${user}</p>`
+
+  let scoreboard = document.getElementsByClassName('scoreboard')[0]
+  scoreboard.innerHTML +=
+  `<div class="scorecard score${user}">
+    <p class="place place-${user}">01</p>
+    <p class="name name-${user}">${user}</p>
+    <p class="score" id="score-${user}"></p>
+  </div>`
+})
+
+// Update counter of players ready
+socket.on('increment', amount => {
+  let playersReady = document.getElementById('players-ready')
+  playersReady.textContent = amount
+})
+```
+
+**server side**
+
+```javascript
+socket.on('join room request', data => {
+    // Convert entered user pin to number
+    const roomPin = data.pin
+
+    // Find the right room
+    Room.findOne({ pin: roomPin }, (err, foundRoom) => {
+      if (err) {
+        console.log('not found', err)
+        socket.emit('denied', roomPin)
+      } else {
+        if (!foundRoom) {
+          // If the room doesn't exist, send error
+          console.log('User not found in database')
+          socket.emit('denied', `The entered pin of ${roomPin} is not valid, please try again`)
+          return
+        }
+
+        // Set username of socket
+        socket.username = data.playerName
+
+        // Room is not full and player can enter
+        if (foundRoom.players.length < 10) {
+          // Add username to song object
+          const cleanedDataWithName = addUsername(cleanedData, data.playerName)
+
+          // Create new user
+          const user = {
+            username: data.playerName,
+            connectedRoom: roomPin,
+            songs: cleanedDataWithName
+          }
+
+          // Save new user to database
+          const newUser = new User(user)
+          console.log(newUser)
+
+          newUser.save(err => {
+            if (err) {
+              console.log('save failed: ', err)
+            } else {
+              console.log('user has been saved')
+            }
+          })
+
+          // Save user in room
+          foundRoom.players.push(data.playerName)
+
+          // Save songs of users in room
+          cleanedDataWithName.forEach(song => {
+            foundRoom.songsTotal.push(song)
+          })
+
+          // Save editted room to databse
+          foundRoom.save((err, updatedRoom) => {
+            if (err) {
+              console.log('failed to save room', err)
+            }
+          })
+
+          // Let the user also show the users who joined before him
+          foundRoom.players.forEach(player => {
+            if (player !== data.playerName) {
+              socket.emit('user joined', player)
+            }
+          })
+
+          // Let user join room
+          socket.join(roomPin)
+          io.in(roomPin).emit('set pin', roomPin)
+          socket.emit('accepted')
+
+          // Set the roomPin for user
+          io.in(roomPin).emit('set pin', roomPin)
+
+          // Add user in the waiting room (visually)
+          io.in(roomPin).emit('user joined', data.playerName)
+          io.in(roomPin).emit('increment', foundRoom.players.length)
+        } else {
+          // If the room is full, send error
+          console.log('Room is full')
+          socket.emit('denied', `The room with pin ${roomPin} is full, try again in a bit`)
+        }
+      }
+    })
+  })
+```
+</details>
+
+<details>
+<summary>
+Accepted / Denied (room request)
+</summary>
+If the room is not full and the pin is valid, the client gets sent an 'accepted'. On this socket event, the waiting room appears. If it doesn't check out, the client gets sent an 'denied'. On this socket event, an alert is shown with the reason why they didn't get through.
+    
+**client side**
+
+```javascript
+socket.on('accepted', roomPin => {
+  joinGame.classList.remove('visible')
+  waitingRoom.classList.add('visible')
+})
+
+socket.on('denied', message => {
+  window.alert(message)
+})
+```
+</details>
+
+<details>
+<summary>
+Disconnect
+</summary>
+When a user disconnects, a lot needs to happen server side. First I check if the socket is connected to any room with the help of the database. If so, I need to filter out the songs which came from that user. Next, I delete the player from the room players list. If the player list is now empty (socket was the last player), I delete the whole room from the database. At last, I delete the user from the database. 
+    
+**server side**
+
+```javascript 
+socket.on('disconnect', () => {
+    // Check if user is connected to any room
+    User.findOne({ username: socket.username, connectedRoom: { $exists: true, $ne: null } }, (err, foundUser) => {
+      console.log(foundUser)
+      if (err) {
+        console.log('not found', err)
+      } else {
+        if (foundUser !== null) {
+          // Find the right room through the user
+          Room.findOne({ pin: foundUser.connectedRoom }, (err, foundRoom) => {
+            if (err) {
+              console.log('not found', err)
+            } else {
+              if (foundRoom.players) {
+                // Delete player from room player song array
+                foundRoom.players = foundRoom.players.filter(player => {
+                  return player !== socket.username
+                })
+
+                // Delete player songs from room song array
+                foundRoom.songsTotal = foundRoom.songsTotal.filter(song => {
+                  if (song.username !== socket.username) {
+                    return song
+                  }
+                })
+
+                // Update db
+                foundRoom.save((err, updatedObject) => {
+                  if (err) {
+                    console.log('failed to update room', err)
+                  }
+                })
+                // Delete room if no players are in it
+              } if (foundRoom.players.length === 0) {
+                Room.findOneAndDelete(foundRoom)
+                console.log('room deleted')
+              }
+
+              // Update waiting room visually for all sockets
+              io.in(foundRoom.pin).emit('user left', socket.username)
+              io.in(foundRoom.pin).emit('increment', foundRoom.players.length)
+            }
+          })
+        }
+      }
+    })
+
+    User.findOneAndDelete({username: socket.username})
+  })
+```
+</details>
+
+<details>
+<summary>
+Start game
+</summary>
+When the host clicks the play button, the 'start game' event is fired. The server now needs to find the right room in the database. In this room, the duplicate songs are filtered out. Then, a x amount of random songs get picked. This amount depends on the length of the game, set by the host. The game starts and the songs get sent to the client one by one, with a delay.
+    
+**Client side**
+
+```javascript
+// Start game
+socket.on('starting', () => {
+  document.getElementById('ready-to-play').classList.remove('visible')
+  waitingRoom.classList.remove('visible')
+  guess.classList.add('visible')
+})
+
+socket.on('game commands', song => {
+  if (song !== undefined) {
+    // Insert song and artist name
+    const songMeta = document.getElementsByClassName('song-meta')[0]
+    songMeta.innerHTML = `
+      <h1>${song.song}</h1>
+      <h2>${song.artists[0]}</h2>
+    `
+
+    // Insert audio
+    const audio = document.getElementById('audio')
+    audio.innerHTML = `<audio id="audio-play" src="${song.sample}"></audio>`
+    document.getElementById('audio-play').play()
+  }
+
+  // Trigger timer
+  const timer = document.getElementsByClassName('bar-over')[0]
+  timer.classList.add('visible')
+  timer.style.transition = 'all 10s linear'
+  timer.style.width = '0px'
+
+  // Update right anwser visually
+  if (song.username !== undefined) {
+    document.getElementById('answer-user').innerHTML = song.username
+  }
+  // Pause song after 10 seconds
+  setTimeout(() => {
+    document.getElementById('audio-play').pause()
+  },
+  10000)
+
+  // Render the score page
+  setTimeout(() => {
+    guess.classList.remove('visible')
+    timer.classList.remove('visible')
+    score.classList.add('visible')
+
+    // Reset timer
+    timer.style.transition = 'all 0s linear'
+    timer.style.width = 'calc(100% - 10px)'
+  },
+  10001)
+
+  // Render the guess page again
+  setTimeout(() => {
+    score.classList.remove('visible')
+    guess.classList.add('visible')
+  },
+  15001)
+
+  // Enable users to click on a answer again
+  answers.forEach(function (answer) {
+    answer.addEventListener('click', submitAnswer)
+  })
+})
+```
+
+**Server side**
+
+```javascript
+socket.on('start game', () => {
+    // Check if user is connected to any room
+    User.findOne({ username: socket.username, connectedRoom: { $exists: true, $ne: null } }, (err, foundUser) => {
+      if (err) {
+        console.log(err)
+      } else {
+        if (foundUser !== null) {
+          // Find the right room through the user
+          Room.findOne({ pin: foundUser.connectedRoom }, (err, foundRoom) => {
+            if (err) {
+              console.log('not found', err)
+            } else {
+              // filter out duplicate songs
+              const noDuplicateSongs = filterDuplicates(foundRoom.songsTotal)
+
+              // Determine amount of used songs for game, according to duration
+              if (foundRoom.duration === '5min') {
+                foundRoom.songsSelection = randomSongPick(noDuplicateSongs, 9)
+              } else if (foundRoom.duration === '10min') {
+                foundRoom.songsSelection = randomSongPick(noDuplicateSongs, 18)
+              } else if (foundRoom.duration === '15min') {
+                foundRoom.songsSelection = randomSongPick(noDuplicateSongs, 27)
+              }
+
+              // Update db
+              foundRoom.save((err, updatedObject) => {
+                if (err) {
+                  console.log('failed to update room', err)
+                }
+              })
+            }
+            // Add players to guess room
+            io.in(foundUser.connectedRoom).emit('add players', foundRoom.players)
+            socket.emit('add players', foundRoom.players)
+
+            // START GAME
+            gameStart(foundRoom)
+          })
+          io.in(foundUser.connectedRoom).emit('starting')
+        }
+      }
+    })
+  })
+  
+  // Pick random items out of array
+function randomSongPick (array, amount) {
+  return array
+    .map(x => ({ x, r: Math.random() }))
+    .sort((a, b) => a.r - b.r)
+    .map(a => a.x)
+    .slice(0, amount)
+}
+
+function filterDuplicates (songs) {
+  const unique = songs.filter((elem, index, self) => self.findIndex((t) => {
+    // https://stackoverflow.com/questions/36032179/remove-duplicates-in-an-object-array-javascript
+    return (t.song === elem.song)
+  }) === index)
+
+  return unique
+}
+
+function gameStart (room) {
+  io.in(room.pin).emit('game commands')
+
+  // Wait 10 seconds with every iteration
+  const interval = 15000
+  room.songsSelection.forEach(function (song, index) {
+    setTimeout(() => {
+      io.in(room.pin).emit('game commands', song)
+      io.in(room.pin).emit('update answer', song.username)
+    }, index * interval)
+  })
+}
+```
+</details>
+
+<details>
+<summary>
+Answer submitted
+</summary>
+I have an eventListener on every possible answer. These anwser have an unique id with the name of the player. This gets sent to the server. I check if the answer is correct. Then I update the score and sent an 'update score' event back to the server. On this 'update score' event in the client. I sort the player with the highest score to the lowest score. Next, I update the scoreboard.
+    
+**client side**
+
+```javascript
+socket.on('update score', (user, score) => {
+  console.log(user)
+  console.log(document.getElementById(`score-${user}`))
+  document.getElementById(`score-${user}`).textContent = score
+
+  moveUsersInScoreboard()
+})
+
+function moveUsersInScoreboard () {
+  // Add all connected players to the guess room
+  const scores = document.getElementsByClassName('score')
+
+  // https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
+  // Sort innerHTML from high to low (score)
+  const sorted = []
+  for (var i in scores) {
+    if (scores[i].nodeType === 1) { // get rid of the whitespace text nodes
+      sorted.push(scores[i])
+    }
+  }
+
+  sorted.sort((a, b) => {
+    return a.innerHTML === b.innerHTML
+      ? 0
+      : (a.innerHTML < b.innerHTML ? 1 : -1)
+  })
+
+  // Remove 'score-' in id
+  const sortedNames = sorted.map(item => {
+    let id = item.id
+    id = id.replace('score-', '')
+    return id
+  })
+
+  let scoreboard = document.getElementsByClassName('scoreboard')[0]
+  scoreboard.innerHTML = ''
+
+  sortedNames.forEach((item, i) => {
+    let place = i + 1
+    let score = sorted[i].innerHTML
+    score = score.toString()
+    console.log('item: ', score)
+
+    scoreboard.innerHTML +=
+    `<div class="scorecard score${item}">
+      <p class="place place-${item}">0${place}</p>
+      <p class="name name-${item}">${item}</p>
+      <p class="score" id="score-${item}">${score}</p>
+    </div>`
+  })
+}
+```
+
+**server side**
+
+```javascript
+let songsPassed = 0
+let score = 0
+
+socket.on('answer submitted', answer => {
+    User.findOne({ username: socket.username, connectedRoom: { $exists: true, $ne: null } }, (err, foundUser) => {
+      if (err) {
+        console.log(err)
+      } else {
+        if (foundUser !== null) {
+          // Find the right room through the user
+          Room.findOne({ pin: foundUser.connectedRoom }, (err, foundRoom) => {
+            if (err) {
+              console.log('not found', err)
+            } else {
+              // Check if anwser is correct
+              if (answer === foundRoom.songsSelection[songsPassed].username) {
+                score = score + 100
+                // User got it right, update anwser
+                io.in(foundUser.connectedRoom).emit('update score', foundUser.username, score)
+                songsPassed++
+              } else {
+                // User got it wrong, update anwser
+                io.in(foundUser.connectedRoom).emit('update score', foundUser.username, score)
+                songsPassed++
+              }
+            }
+          })
+        }
+      }
+    })
+  })
+```
+</details>
+
+## Creating and modifying data
+In this function, I check for objects with the same .song key. If so, I will only keep one
+
+```javascript
+function filterDuplicates (songs) {
+  const unique = songs.filter((elem, index, self) => self.findIndex((t) => {
+    // https://stackoverflow.com/questions/36032179/remove-duplicates-in-an-object-array-javascript
+    return (t.song === elem.song)
+  }) === index)
+
+  return unique
+}
+```
+
+In this function, I pick x amount of random songs out of an array to use in the game
+  
+```javascript
+// Pick random items out of array
+// https://stackoverflow.com/questions/19269545/how-to-get-n-no-elements-randomly-from-an-array
+function randomSongPick (array, amount) {
+  return array
+    .map(x => ({ x, r: Math.random() }))
+    .sort((a, b) => a.r - b.r)
+    .map(a => a.x)
+    .slice(0, amount)
+}
+```
+
+Here, I create an array of html elements. I sort this array on the value (number) in the innerHTML. Next, I remove part of an ID.
+
+```javascript
+// Add all connected players to the guess room
+  const scores = document.getElementsByClassName('score')
+
+  // https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
+  // Sort innerHTML from high to low (score)
+  const sorted = []
+  for (var i in scores) {
+    if (scores[i].nodeType === 1) { // get rid of the whitespace text nodes
+      sorted.push(scores[i])
+    }
+  }
+
+  sorted.sort((a, b) => {
+    return a.innerHTML === b.innerHTML
+      ? 0
+      : (a.innerHTML < b.innerHTML ? 1 : -1)
+  })
+
+  // Remove 'score-' in id
+  const sortedNames = sorted.map(item => {
+    let id = item.id
+    id = id.replace('score-', '')
+    return id
+  })
+```
+
+## Features
+**made**
+- Create rooms with unique ID
+- Join rooms with unique ID
+- Guess song of players (game)
+- See everyones score
+- Database management
+
+**would do with more time**
+- Create playlist with connected players to room
+- The more points the player gets, the more songs he/she can add to playlist
+- Winner can reorder playlist
+
+## Dependencies
+- express
+- mongoose
+- node-fetch
+- socket.io
+- body-parser
+- cookie-parser
+- dotenv
+- ejs
+- nodemon
+- parcel
+- query-string
+
+## Sources
+- https://stackoverflow.com/questions/19269545/how-to-get-n-no-elements-randomly-from-an-array
+- https://stackoverflow.com/questions/36032179/remove-duplicates-in-an-object-array-javascript
+- https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
+- https://www.youtube.com/watch?v=OuCrHynro0w&t=828s
+- https://stackoverflow.com/questions/16994662/count-animation-from-number-a-to-b
+
+## Credits
+- Kris | A complete explanation of Oauth with the Spotify API. Would've never completed the project in time without it
+- Manouk | Tips and feedback on my concept and data flow
+- Joan | Helping me with a mental breakdown
+
 ## Author and license
 Coen Mathijssen - MIT license
-
-# Eindopdracht
-## Spotify Roulette
-For my concept I'm using the Spotify API. How does my concept work? You are able to enter 'rooms'. Your own space for you and your friends. You're able to enter a room with a code, similary like Kahoot. Then, all users give permission for the webapp to read your Spotify saved song data through OAuth. The webapp serves the users a random song from one of the playlist of a user. All friends have to guess to which user the song belongs. If you get it right, you get a point. If you get more points, you can add more songs to a co-created playlist (of your friends). The ultimate winner is also able to rearrange the songs in the co-created playlist. Now you have a playlist together, which you can use at a party!
-
-## Data lifecycle
-![data-lifecycle-01](https://user-images.githubusercontent.com/43337909/79839837-641a8400-83b5-11ea-896f-4e9dbc155346.jpg)
-
