@@ -14,9 +14,7 @@ const { User, Room } = require('./server/user-schema.js')
 const { randomSongPick, filterDuplicates, addUsername, cleanItems, getRandomNumber } = require('./server/data.js')
 
 // Setting up port for express to use
-const server = app.listen(3000, `localhost`, () => {
-  console.log('listening on port: ', process.env.PORT)
-})
+const server = app.listen(process.env.PORT || 3000);
 
 //  Serve html, css and js files in the static directory
 app.use(express.static(path.join(__dirname, 'dist')))
