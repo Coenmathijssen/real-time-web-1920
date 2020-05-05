@@ -3,7 +3,7 @@
 For my concept I'm using the Spotify API. How does my concept work? Before entering my webapp, you need to give permission to read out your Spotify credentials and your liked songs. You are able to create and enter 'rooms' with a unique pin. Your own space for you and your friends. You're able to enter a room with a code, similary like Kahoot. The webapp serves the users a random song from one of the playlist of a user. All friends have to guess to which user the song belongs. If you get it right, you get 100 points. If you get more points, you can add more songs to a co-created playlist (of your friends). The ultimate winner is also able to rearrange the songs in the co-created playlist. Now you have a playlist together, which you can use at a party!
 
 ## Data lifecycle
-![data-lifecycle-01](https://user-images.githubusercontent.com/43337909/79839837-641a8400-83b5-11ea-896f-4e9dbc155346.jpg)
+![data-lifecycle-new-01](https://user-images.githubusercontent.com/43337909/81066704-cc04ba80-8edd-11ea-91c7-9cbd15067f05.jpg)
 
 ## Install
 1. Open the terminal on your computer.
@@ -174,6 +174,26 @@ const User = mongoose.model('User', UserSchema)
 ```
 
 ## Socket events
+### Socket events overview
+**client to server**
+- `Create room` Event to create room with playername, songs and unique pin
+- `Join room request` Event to join a room with correct pin
+- `Disconnect` Socket disconnects
+- `Start game` Host starts game
+- `Answer submitted` The players submit an answer
+
+**server to client**
+- `Play button appear` Let a play button appear in the waiting room, but only for the host
+- `User joined` Add user to room visually
+- `Set pin` Set the right room pin in the waiting room, so users can invite other people
+- `Accepted / denied` Accept or deny a join room request, alert(issue) if denied. Add user visually if accepted
+- `Increment` Increment 'player ready' amount
+- `Add players` Add all players to the guessing page
+- `Starting` Display the guessing page and hide the waiting room page
+- `Game commands` Add audio, song name, artist and trigger timer
+- `Update score` Update scoreboard for all users
+
+### Socket events deepdive
 <details>
 <summary>
 Create Room
