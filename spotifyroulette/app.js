@@ -10,7 +10,6 @@ require('dotenv').config()
 
 const loginRoute = require('./server/login.js')
 const callbackRoute = require('./server/callback.js')
-const createGame = require('./server/create-game.js')
 const { User, Room } = require('./server/user-schema.js')
 
 // // Setting up port for express to use
@@ -51,29 +50,53 @@ mongoose.connection.on('connected', () => {
 app.get('/login', loginRoute) // Redirect for Spotify auth
 app.get('/callback', callbackRoute) // calback url
 
-// Create a new room with unique ID
-app.post('/create-game', createGame)
+// // Create a new room with unique ID
+// app.post('/create-game', createGame)
 
 let cleanedData = null
-
-const tempDatabase = []
 
 // Socket setup
 const io = socket(server)
 
 // SOCKET.IO ---> NEED TO SEPERATE LATER
 io.on('connection', socket => {
+  let songsPassed = 0
+  let score = 0
+
   socket.on('create room', data => {
     const roomPin = getRandomNumber(1000000)
 
-    // Create new room
+    // Add username to every song object
+    const cleanedDataWithName = addUsername(cleanedData, data.hostName)
+
+    // Create new user
+    const user = {
+      username: data.hostName,
+      connectedRoom: roomPin.toString(),
+      songs: cleanedDataWithName
+    }
+
+    // Save new user to database
+    const newUser = new User(user)
+    console.log('new user: ', newUser)
+
+    newUser.save(err => {
+      if (err) {
+        console.log('save failed: ', err)
+      } else {
+        console.log('user has been saved')
+      }
+    })
+
+    // Create new room with right data
     const room = {
       pin: roomPin,
       hostName: data.hostName,
       duration: data.duration,
       players: [
         data.hostName
-      ]
+      ],
+      songsTotal: cleanedDataWithName
     }
 
     // Save new room to database
@@ -87,25 +110,6 @@ io.on('connection', socket => {
       }
     })
 
-    // Create new user
-    const user = {
-      username: data.hostName,
-      connectedRoom: roomPin.toString(),
-      songs: cleanedData
-    }
-
-    // Save new user to database
-    const newUser = new User(user)
-    console.log(newUser)
-
-    newUser.save(err => {
-      if (err) {
-        console.log('save failed: ', err)
-      } else {
-        console.log('user has been saved')
-      }
-    })
-
     // Set username of socket
     socket.username = data.hostName
     socket.room = roomPin
@@ -113,10 +117,6 @@ io.on('connection', socket => {
 
     // Let user who created room join it
     socket.join(roomPin)
-
-    // Push in temporary database
-    // tempDatabase.push(newRoom)
-    // console.log('PLS ', tempDatabase)
 
     // Let play button appear for the one who created the room
     socket.emit('play button appear')
@@ -153,11 +153,14 @@ io.on('connection', socket => {
 
         // Room is not full and player can enter
         if (foundRoom.players.length < 10) {
+          // Add username to song object
+          const cleanedDataWithName = addUsername(cleanedData, data.playerName)
+
           // Create new user
           const user = {
             username: data.playerName,
             connectedRoom: roomPin,
-            songs: cleanedData
+            songs: cleanedDataWithName
           }
 
           // Save new user to database
@@ -174,6 +177,11 @@ io.on('connection', socket => {
 
           // Save user in room
           foundRoom.players.push(data.playerName)
+
+          // Save songs of users in room
+          cleanedDataWithName.forEach(song => {
+            foundRoom.songsTotal.push(song)
+          })
 
           // Save editted room to databse
           foundRoom.save((err, updatedRoom) => {
@@ -210,30 +218,40 @@ io.on('connection', socket => {
   })
 
   socket.on('disconnect', () => {
-    // Delete the found user from the room
+    // Check if user is connected to any room
     User.findOne({ username: socket.username, connectedRoom: { $exists: true, $ne: null } }, (err, foundUser) => {
       console.log(foundUser)
       if (err) {
         console.log('not found', err)
       } else {
         if (foundUser !== null) {
+          // Find the right room through the user
           Room.findOne({ pin: foundUser.connectedRoom }, (err, foundRoom) => {
             if (err) {
               console.log('not found', err)
             } else {
               if (foundRoom.players) {
+                // Delete player from room player song array
                 foundRoom.players = foundRoom.players.filter(player => {
                   return player !== socket.username
                 })
+
+                // Delete player songs from room song array
+                foundRoom.songsTotal = foundRoom.songsTotal.filter(song => {
+                  if (song.username !== socket.username) {
+                    return song
+                  }
+                })
+
                 // Update db
                 foundRoom.save((err, updatedObject) => {
                   if (err) {
-                    console.log('failed to update user', err)
+                    console.log('failed to update room', err)
                   }
                 })
                 // Delete room if no players are in it
               } if (foundRoom.players.length === 0) {
-                foundRoom.remove()
+                Room.findOneAndDelete(foundRoom)
                 console.log('room deleted')
               }
 
@@ -248,11 +266,74 @@ io.on('connection', socket => {
   })
 
   socket.on('start game', () => {
+    // Check if user is connected to any room
     User.findOne({ username: socket.username, connectedRoom: { $exists: true, $ne: null } }, (err, foundUser) => {
       if (err) {
         console.log(err)
       } else {
-        io.in(foundUser.connectedRoom).emit('starting')
+        if (foundUser !== null) {
+          // Find the right room through the user
+          Room.findOne({ pin: foundUser.connectedRoom }, (err, foundRoom) => {
+            if (err) {
+              console.log('not found', err)
+            } else {
+              // filter out duplicate songs
+              const noDuplicateSongs = filterDuplicates(foundRoom.songsTotal)
+
+              // Determine amount of used songs for game, according to duration
+              if (foundRoom.duration === '5min') {
+                foundRoom.songsSelection = randomSongPick(noDuplicateSongs, 9)
+              } else if (foundRoom.duration === '10min') {
+                foundRoom.songsSelection = randomSongPick(noDuplicateSongs, 18)
+              } else if (foundRoom.duration === '15min') {
+                foundRoom.songsSelection = randomSongPick(noDuplicateSongs, 27)
+              }
+
+              // Update db
+              foundRoom.save((err, updatedObject) => {
+                if (err) {
+                  console.log('failed to update room', err)
+                }
+              })
+            }
+            // Add players to guess room
+            io.in(foundUser.connectedRoom).emit('add players', foundRoom.players)
+            socket.emit('add players', foundRoom.players)
+
+            // START GAME
+            gameStart(foundRoom)
+          })
+          io.in(foundUser.connectedRoom).emit('starting')
+        }
+      }
+    })
+  })
+
+  socket.on('answer submitted', answer => {
+    User.findOne({ username: socket.username, connectedRoom: { $exists: true, $ne: null } }, (err, foundUser) => {
+      if (err) {
+        console.log(err)
+      } else {
+        if (foundUser !== null) {
+          // Find the right room through the user
+          Room.findOne({ pin: foundUser.connectedRoom }, (err, foundRoom) => {
+            if (err) {
+              console.log('not found', err)
+            } else {
+              // Check if anwser is correct
+              if (answer === foundRoom.songsSelection[songsPassed].username) {
+                score = score + 100
+                // User got it right, update anwser
+                io.in(foundUser.connectedRoom).emit('update score', foundUser.username, score)
+                songsPassed++
+              } else {
+                // User got it wrong, update anwser
+                io.in(foundUser.connectedRoom).emit('update score', foundUser.username, score)
+                songsPassed++
+              }
+            }
+          })
+        }
       }
     })
   })
@@ -269,6 +350,36 @@ function randomSongPick (array, amount) {
     .sort((a, b) => a.r - b.r)
     .map(a => a.x)
     .slice(0, amount)
+}
+
+function filterDuplicates (songs) {
+  const unique = songs.filter((elem, index, self) => self.findIndex((t) => {
+    // https://stackoverflow.com/questions/36032179/remove-duplicates-in-an-object-array-javascript
+    return (t.song === elem.song)
+  }) === index)
+
+  return unique
+}
+
+function addUsername (array, username) {
+  return array.map(el => {
+    let song = Object.assign({}, el)
+    song.username = username
+    return song
+  })
+}
+
+function gameStart (room) {
+  io.in(room.pin).emit('game commands')
+
+  // Wait 10 seconds with every iteration
+  const interval = 15000
+  room.songsSelection.forEach(function (song, index) {
+    setTimeout(() => {
+      io.in(room.pin).emit('game commands', song)
+      io.in(room.pin).emit('update answer', song.username)
+    }, index * interval)
+  })
 }
 
 // LELIJKE FETCH
@@ -288,8 +399,8 @@ const getSongs = async (req, res, next) => {
     let data = await spotifyResponse.json()
     data = data.items
     cleanedData = cleanItems(data)
-
     res.render('index.ejs')
+    return cleanedData
   } catch (err) {
     console.log('error fetching songs of user: ', err)
   }

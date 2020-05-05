@@ -1,8 +1,6 @@
 // Make connection
 const socket = io()
 
-let cookie = getCookie('ACCESS_TOKEN')
-
 // let pages appear and disapear
 const introduction = document.getElementsByClassName('introduction')[0]
 const createGame = document.getElementsByClassName('create')[0]
@@ -46,7 +44,6 @@ const createGameButton = document.getElementById('create-game')
 createGameButton.addEventListener('click', () => {
   const playerName = document.getElementsByName('playerName')[0].value
   const duration = document.querySelector('input[name="duration"]:checked').value
-  console.log(playerName, duration)
   socket.emit('create room', {
     pin: null,
     hostName: playerName,
@@ -59,7 +56,6 @@ createGameButton.addEventListener('click', () => {
 
 // Set room pin of waiting room
 socket.on('set pin', roomPin => {
-  console.log('running?')
   const pin = document.getElementById('room-pin')
   pin.textContent = roomPin
 })
@@ -98,16 +94,16 @@ socket.on('user joined', user => {
   let playerList = document.getElementsByClassName('players')[0]
   playerList.innerHTML += `<p class="${user}">${user}</p>`
 
-  // Add users in game
-  let players = document.getElementsByClassName('players')[1]
-  players.innerHTML += `<p id="${user}">${user}</p>`
+  // // Add users in game
+  // let players = document.getElementsByClassName('players')[1]
+  // players.innerHTML += `<p id="${user}" class="answer">${user}</p>`
 
   let scoreboard = document.getElementsByClassName('scoreboard')[0]
   scoreboard.innerHTML +=
   `<div class="scorecard score${user}">
-    <p class="place place${user}">01</p>
-    <p class="name name${user}">${user}</p>
-    <p class="score score${user}">3524</p>
+    <p class="place place-${user}">01</p>
+    <p class="name name-${user}">${user}</p>
+    <p class="score" id="score-${user}"></p>
   </div>`
 })
 
@@ -132,8 +128,157 @@ socket.on('starting', () => {
   guess.classList.add('visible')
 })
 
-function getCookie(name) {
-  var value = "; " + document.cookie;
-  var parts = value.split("; " + name + "=");
-  if (parts.length == 2) return parts.pop().split(";").shift();
+socket.on('game commands', song => {
+  if (song !== undefined) {
+    // Insert song and artist name
+    const songMeta = document.getElementsByClassName('song-meta')[0]
+    songMeta.innerHTML = `
+      <h1>${song.song}</h1>
+      <h2>${song.artists[0]}</h2>
+    `
+
+    // Insert audio
+    const audio = document.getElementById('audio')
+    audio.innerHTML = `<audio id="audio-play" src="${song.sample}"></audio>`
+    document.getElementById('audio-play').play()
+  }
+
+  // Trigger timer
+  const timer = document.getElementsByClassName('bar-over')[0]
+  timer.classList.add('visible')
+  timer.style.transition = 'all 10s linear'
+  timer.style.width = '0px'
+
+  // Update right anwser visually
+  if (song.username !== undefined) {
+    document.getElementById('answer-user').innerHTML = song.username
+  }
+  // Pause song after 10 seconds
+  setTimeout(() => {
+    document.getElementById('audio-play').pause()
+  },
+  10000)
+
+  // Render the score page
+  setTimeout(() => {
+    guess.classList.remove('visible')
+    timer.classList.remove('visible')
+    score.classList.add('visible')
+
+    // Reset timer
+    timer.style.transition = 'all 0s linear'
+    timer.style.width = 'calc(100% - 10px)'
+  },
+  10001)
+
+  // Render the guess page again
+  setTimeout(() => {
+    score.classList.remove('visible')
+    guess.classList.add('visible')
+  },
+  15001)
+
+  // Enable users to click on a answer again
+  answers.forEach(function (answer) {
+    answer.addEventListener('click', submitAnswer)
+  })
+})
+
+// Add all connected players to the guess room
+let answers = Array.from(document.getElementsByClassName('answer'))
+
+socket.on('add players', players => {
+  for (let i = 0; i < answers.length; i++) {
+    if (players[i]) {
+      answers[i].classList.add('visible')
+      answers[i].textContent = players[i]
+      answers[i].id = players[i]
+    }
+  }
+})
+
+// Anwsering
+answers.forEach(function (answer) {
+  // Create an event listener for every possible answer, where the id is passed
+  answer.addEventListener('click', submitAnswer)
+})
+
+function submitAnswer () {
+  socket.emit('answer submitted', this.id)
+
+  // Remove all event listeners when item is clicked, to prevent from clicking multiple times
+  answers.forEach(function (answer) {
+    answer.removeEventListener('click', submitAnswer)
+  })
 }
+
+socket.on('update score', (user, score) => {
+  console.log(user)
+  console.log(document.getElementById(`score-${user}`))
+  document.getElementById(`score-${user}`).textContent = score
+
+  moveUsersInScoreboard()
+})
+
+function moveUsersInScoreboard () {
+  // Add all connected players to the guess room
+  const scores = document.getElementsByClassName('score')
+
+  // https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
+  // Sort innerHTML from high to low (score)
+  const sorted = []
+  for (var i in scores) {
+    if (scores[i].nodeType === 1) { // get rid of the whitespace text nodes
+      sorted.push(scores[i])
+    }
+  }
+
+  sorted.sort((a, b) => {
+    return a.innerHTML === b.innerHTML
+      ? 0
+      : (a.innerHTML < b.innerHTML ? 1 : -1)
+  })
+
+
+  // Remove 'score-' in id
+  const sortedNames = sorted.map(item => {
+    let id = item.id
+    id = id.replace('score-', '')
+    return id
+  })
+
+  let scoreboard = document.getElementsByClassName('scoreboard')[0]
+  scoreboard.innerHTML = ''
+
+  sortedNames.forEach((item, i) => {
+    let place = i + 1
+    let score = sorted[i].innerHTML
+    score = score.toString()
+    console.log('item: ', score)
+
+    scoreboard.innerHTML +=
+    `<div class="scorecard score${item}">
+      <p class="place place-${item}">0${place}</p>
+      <p class="name name-${item}">${item}</p>
+      <p class="score" id="score-${item}">${score}</p>
+    </div>`
+  })
+}
+
+// // Animating score
+// function animateValue (element, start, end, duration) {
+//   var range = end - start
+//   var current = start
+//   var increment = end > start ? 1 : -1
+//   var stepTime = Math.abs(Math.floor(duration / range))
+//   var obj = document.getElementById(id)
+//   var timer = setInterval(() => {
+//     current += increment
+//     obj.innerHTML = current
+//     if (current === end) {
+//       clearInterval(timer)
+//     }
+//   }, stepTime)
+// }
+
+// animateValue('value', 100, 25, 5000)

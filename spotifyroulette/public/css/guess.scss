@@ -5,7 +5,13 @@
     align-items: center;
     padding-right: 20px;
 
+    #audio {
+      width: 30%;
+      visibility: hidden;
+    }
+
     .text {
+      width: 70%;
       padding-right: 1em;
 
       h1 {
@@ -66,8 +72,7 @@
       width: calc(100% - 10px);
       height: 3px;
       bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 0;
     }
 
     .bar-under {
@@ -75,7 +80,12 @@
     }
 
     .bar-over {
-      background-color: $pink
+      background-color: $pink;
+      visibility: hidden;
+
+      &.visible {
+        visibility: visible;
+      }
     }
 
     p {
@@ -121,6 +131,11 @@
         font-family: gotham, arial, sans-serif;
         font-weight: 500;
         border-radius: 5px;
+        // visibility: hidden;
+
+        // &.visible {
+        //   visibility: visible;
+        // }
       }
     }
   }

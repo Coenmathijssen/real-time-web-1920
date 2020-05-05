@@ -119,8 +119,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   return newRequire;
 })({"js/main.js":[function(require,module,exports) {
 // Make connection
-var socket = io();
-var cookie = getCookie('ACCESS_TOKEN'); // let pages appear and disapear
+var socket = io(); // let pages appear and disapear
 
 var introduction = document.getElementsByClassName('introduction')[0];
 var createGame = document.getElementsByClassName('create')[0];
@@ -157,7 +156,6 @@ var createGameButton = document.getElementById('create-game');
 createGameButton.addEventListener('click', function () {
   var playerName = document.getElementsByName('playerName')[0].value;
   var duration = document.querySelector('input[name="duration"]:checked').value;
-  console.log(playerName, duration);
   socket.emit('create room', {
     pin: null,
     hostName: playerName,
@@ -167,7 +165,6 @@ createGameButton.addEventListener('click', function () {
 }); // Set room pin of waiting room
 
 socket.on('set pin', function (roomPin) {
-  console.log('running?');
   var pin = document.getElementById('room-pin');
   pin.textContent = roomPin;
 }); // Join game
@@ -198,12 +195,12 @@ socket.on('denied', function (message) {
 socket.on('user joined', function (user) {
   // Add users in waiting room
   var playerList = document.getElementsByClassName('players')[0];
-  playerList.innerHTML += "<p class=\"".concat(user, "\">").concat(user, "</p>"); // Add users in game
+  playerList.innerHTML += "<p class=\"".concat(user, "\">").concat(user, "</p>"); // // Add users in game
+  // let players = document.getElementsByClassName('players')[1]
+  // players.innerHTML += `<p id="${user}" class="answer">${user}</p>`
 
-  var players = document.getElementsByClassName('players')[1];
-  players.innerHTML += "<p id=\"".concat(user, "\">").concat(user, "</p>");
   var scoreboard = document.getElementsByClassName('scoreboard')[0];
-  scoreboard.innerHTML += "<div class=\"scorecard score".concat(user, "\">\n    <p class=\"place place").concat(user, "\">01</p>\n    <p class=\"name name").concat(user, "\">").concat(user, "</p>\n    <p class=\"score score").concat(user, "\">3524</p>\n  </div>");
+  scoreboard.innerHTML += "<div class=\"scorecard score".concat(user, "\">\n    <p class=\"place place-").concat(user, "\">01</p>\n    <p class=\"name name-").concat(user, "\">").concat(user, "</p>\n    <p class=\"score\" id=\"score-").concat(user, "\"></p>\n  </div>");
 }); // Update counter of players ready
 
 socket.on('increment', function (amount) {
@@ -223,12 +220,130 @@ socket.on('starting', function () {
   waitingRoom.classList.remove('visible');
   guess.classList.add('visible');
 });
+socket.on('game commands', function (song) {
+  if (song !== undefined) {
+    // Insert song and artist name
+    var songMeta = document.getElementsByClassName('song-meta')[0];
+    songMeta.innerHTML = "\n      <h1>".concat(song.song, "</h1>\n      <h2>").concat(song.artists[0], "</h2>\n    "); // Insert audio
 
-function getCookie(name) {
-  var value = "; " + document.cookie;
-  var parts = value.split("; " + name + "=");
-  if (parts.length == 2) return parts.pop().split(";").shift();
+    var audio = document.getElementById('audio');
+    audio.innerHTML = "<audio id=\"audio-play\" src=\"".concat(song.sample, "\"></audio>");
+    document.getElementById('audio-play').play();
+  } // Trigger timer
+
+
+  var timer = document.getElementsByClassName('bar-over')[0];
+  timer.classList.add('visible');
+  timer.style.transition = 'all 10s linear';
+  timer.style.width = '0px'; // Update right anwser visually
+
+  if (song.username !== undefined) {
+    document.getElementById('answer-user').innerHTML = song.username;
+  } // Pause song after 10 seconds
+
+
+  setTimeout(function () {
+    document.getElementById('audio-play').pause();
+  }, 10000); // Render the score page
+
+  setTimeout(function () {
+    guess.classList.remove('visible');
+    timer.classList.remove('visible');
+    score.classList.add('visible'); // Reset timer
+
+    timer.style.transition = 'all 0s linear';
+    timer.style.width = 'calc(100% - 10px)';
+  }, 10001); // Render the guess page again
+
+  setTimeout(function () {
+    score.classList.remove('visible');
+    guess.classList.add('visible');
+  }, 15001); // Enable users to click on a answer again
+
+  answers.forEach(function (answer) {
+    answer.addEventListener('click', submitAnswer);
+  });
+}); // Add all connected players to the guess room
+
+var answers = Array.from(document.getElementsByClassName('answer'));
+socket.on('add players', function (players) {
+  for (var i = 0; i < answers.length; i++) {
+    if (players[i]) {
+      answers[i].classList.add('visible');
+      answers[i].textContent = players[i];
+      answers[i].id = players[i];
+    }
+  }
+}); // Anwsering
+
+answers.forEach(function (answer) {
+  // Create an event listener for every possible answer, where the id is passed
+  answer.addEventListener('click', submitAnswer);
+});
+
+function submitAnswer() {
+  socket.emit('answer submitted', this.id); // Remove all event listeners when item is clicked, to prevent from clicking multiple times
+
+  answers.forEach(function (answer) {
+    answer.removeEventListener('click', submitAnswer);
+  });
 }
+
+socket.on('update score', function (user, score) {
+  console.log(user);
+  console.log(document.getElementById("score-".concat(user)));
+  document.getElementById("score-".concat(user)).textContent = score;
+  moveUsersInScoreboard();
+});
+
+function moveUsersInScoreboard() {
+  // Add all connected players to the guess room
+  var scores = document.getElementsByClassName('score'); // https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
+  // Sort innerHTML from high to low (score)
+
+  var sorted = [];
+
+  for (var i in scores) {
+    if (scores[i].nodeType === 1) {
+      // get rid of the whitespace text nodes
+      sorted.push(scores[i]);
+    }
+  }
+
+  sorted.sort(function (a, b) {
+    return a.innerHTML === b.innerHTML ? 0 : a.innerHTML < b.innerHTML ? 1 : -1;
+  }); // Remove 'score-' in id
+
+  var sortedNames = sorted.map(function (item) {
+    var id = item.id;
+    id = id.replace('score-', '');
+    return id;
+  });
+  var scoreboard = document.getElementsByClassName('scoreboard')[0];
+  scoreboard.innerHTML = '';
+  sortedNames.forEach(function (item, i) {
+    var place = i + 1;
+    var score = sorted[i].innerHTML;
+    score = score.toString();
+    console.log('item: ', score);
+    scoreboard.innerHTML += "<div class=\"scorecard score".concat(item, "\">\n      <p class=\"place place-").concat(item, "\">0").concat(place, "</p>\n      <p class=\"name name-").concat(item, "\">").concat(item, "</p>\n      <p class=\"score\" id=\"score-").concat(item, "\">").concat(score, "</p>\n    </div>");
+  });
+} // // Animating score
+// function animateValue (element, start, end, duration) {
+//   var range = end - start
+//   var current = start
+//   var increment = end > start ? 1 : -1
+//   var stepTime = Math.abs(Math.floor(duration / range))
+//   var obj = document.getElementById(id)
+//   var timer = setInterval(() => {
+//     current += increment
+//     obj.innerHTML = current
+//     if (current === end) {
+//       clearInterval(timer)
+//     }
+//   }, stepTime)
+// }
+// animateValue('value', 100, 25, 5000)
 },{}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -257,7 +372,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54451" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50412" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

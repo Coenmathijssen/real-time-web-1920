@@ -119,22 +119,25 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   return newRequire;
 })({"js/create-room.js":[function(require,module,exports) {
 // Make connection
-var socket = io(); // function animateValue (id, start, end, duration) {
-//   var range = end - start
-//   var current = start
-//   var increment = end > start ? 1 : -1
-//   var stepTime = Math.abs(Math.floor(duration / range))
-//   var obj = document.getElementById(id)
-//   var timer = setInterval(() => {
-//     current += increment
-//     obj.innerHTML = current
-//     if (current === end) {
-//       clearInterval(timer)
-//     }
-//   }, stepTime)
-// }
-// animateValue('value', 100, 25, 5000)
+var socket = io();
 
+function animateValue(id, start, end, duration) {
+  var range = end - start;
+  var current = start;
+  var increment = end > start ? 1 : -1;
+  var stepTime = Math.abs(Math.floor(duration / range));
+  var obj = document.getElementById(id);
+  var timer = setInterval(function () {
+    current += increment;
+    obj.innerHTML = current;
+
+    if (current === end) {
+      clearInterval(timer);
+    }
+  }, stepTime);
+}
+
+animateValue('value', 100, 25, 5000);
 console.log('joe'); // Creating game
 
 var createGameButton = document.getElementById('create-game');
@@ -181,7 +184,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54451" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50412" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

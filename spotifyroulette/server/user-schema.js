@@ -9,6 +9,14 @@ const roomSchema = new Schema({
   players: {
     type: Array,
     default: []
+  },
+  songsTotal: {
+    type: Array,
+    default: []
+  },
+  songsSelection: {
+    type: Array,
+    default: []
   }
 })
 

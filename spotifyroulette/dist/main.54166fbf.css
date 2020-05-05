@@ -347,7 +347,12 @@ p {
   align-items: center;
   padding-right: 20px;
 }
+.guess .song #audio {
+  width: 30%;
+  visibility: hidden;
+}
 .guess .song .text {
+  width: 70%;
   padding-right: 1em;
 }
 .guess .song .text h1 {
@@ -399,14 +404,17 @@ p {
   width: calc(100% - 10px);
   height: 3px;
   bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
 }
 .guess .time .bar-under {
   background-color: #FFFFFF;
 }
 .guess .time .bar-over {
   background-color: #F6546A;
+  visibility: hidden;
+}
+.guess .time .bar-over.visible {
+  visibility: visible;
 }
 .guess .time p {
   position: absolute;
