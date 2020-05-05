@@ -299,7 +299,7 @@ socket.on('create room', data => {
 
 <details>
 <summary>
-Join room requests
+Join room request
 </summary>
 Here, a user fills in his name and the required game pin. On the submit button, a 'join room request' is fired to the server. The server reads out the data passed through the socket event. Then, the server checks if the room exists, if the room isn't full (max 10 players). If everything checks out, a new user is created and stored in the database. The user is added to the room and the waiting room is updated visually.
     
