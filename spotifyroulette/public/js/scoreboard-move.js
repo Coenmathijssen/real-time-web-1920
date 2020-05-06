@@ -1,7 +1,6 @@
-function moveUsersInScoreboard () {
+export function moveUsersInScoreboard () {
   // Add all connected players to the guess room
   const scores = document.getElementsByClassName('score')
-  console.log('scores', scores)
 
   // https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
   // Sort innerHTML from high to low (score)
@@ -11,8 +10,6 @@ function moveUsersInScoreboard () {
       sorted.push(scores[i])
     }
   }
-
-  console.log('sorted', sorted)
 
   sorted.sort((a, b) => {
     return a.innerHTML === b.innerHTML
@@ -26,8 +23,6 @@ function moveUsersInScoreboard () {
     id = id.replace('score-', '')
     return id
   })
-
-  console.log('sorted names', sortedNames)
 
   let scoreboard = document.getElementsByClassName('scoreboard')[0]
   scoreboard.innerHTML = ''
@@ -45,6 +40,4 @@ function moveUsersInScoreboard () {
       <p class="score" id="score-${item}">${score}</p>
     </div>`
   })
-
-  console.log('scoreboard: ', scoreboard)
 }
