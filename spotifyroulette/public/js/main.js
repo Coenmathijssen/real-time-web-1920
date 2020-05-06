@@ -40,6 +40,25 @@ document.getElementsByClassName('time')[0].addEventListener('click', () => {
   score.classList.add('visible')
 })
 
+// Play and pause audio
+const play = document.getElementById('play-button')
+const pause = document.getElementById('pause-button')
+const audio = document.getElementById('audio-play')
+play.addEventListener('click', playAudio)
+pause.addEventListener('click', pauseAudio)
+
+function playAudio () {
+  play.classList.add('hidden')
+  pause.classList.remove('hidden')
+  audio.play()
+}
+
+function pauseAudio () {
+  pause.classList.add('hidden')
+  play.classList.remove('hidden')
+  audio.pause()
+}
+
 // SOCKET.IO
 
 // Creating game
@@ -131,7 +150,7 @@ socket.on('starting', () => {
 })
 
 socket.on('game commands', song => {
-  if (song !== undefined) {
+  if (song) {
     // Insert song and artist name
     const songMeta = document.getElementsByClassName('song-meta')[0]
     songMeta.innerHTML = `
@@ -139,10 +158,9 @@ socket.on('game commands', song => {
       <h2>${song.artists[0]}</h2>
     `
 
-    // Insert audio
-    const audio = document.getElementById('audio')
-    audio.innerHTML = `<audio id="audio-play" src="${song.sample}"></audio>`
-    document.getElementById('audio-play').play()
+    // Insert and play audio
+    audio.src = song.sample
+    playAudio()
   }
 
   // Trigger timer
@@ -152,12 +170,12 @@ socket.on('game commands', song => {
   timer.style.width = '0px'
 
   // Update right anwser visually
-  if (song.username !== undefined) {
+  if (song.username) {
     document.getElementById('answer-user').innerHTML = song.username
   }
   // Pause song after 10 seconds
   setTimeout(() => {
-    document.getElementById('audio-play').pause()
+    pauseAudio()
   },
   25000)
 

@@ -35,10 +35,25 @@
 
       img {
         position: absolute;
-        width: 40%;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
+
+        &:first-of-type {
+          width: 30%;
+
+          &.hidden {
+            visibility: hidden;
+          }
+        }
+
+        &:last-of-type {
+          width: 40%;
+
+          &.hidden {
+            visibility: hidden;
+          }
+        }
       }
     }
   }

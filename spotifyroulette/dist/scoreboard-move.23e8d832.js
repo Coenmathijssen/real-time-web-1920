@@ -120,7 +120,8 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 })({"js/scoreboard-move.js":[function(require,module,exports) {
 function moveUsersInScoreboard() {
   // Add all connected players to the guess room
-  var scores = document.getElementsByClassName('score'); // https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
+  var scores = document.getElementsByClassName('score');
+  console.log('scores', scores); // https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
   // Sort innerHTML from high to low (score)
 
   var sorted = [];
@@ -132,6 +133,7 @@ function moveUsersInScoreboard() {
     }
   }
 
+  console.log('sorted', sorted);
   sorted.sort(function (a, b) {
     return a.innerHTML === b.innerHTML ? 0 : a.innerHTML < b.innerHTML ? 1 : -1;
   }); // Remove 'score-' in id
@@ -141,6 +143,7 @@ function moveUsersInScoreboard() {
     id = id.replace('score-', '');
     return id;
   });
+  console.log('sorted names', sortedNames);
   var scoreboard = document.getElementsByClassName('scoreboard')[0];
   scoreboard.innerHTML = '';
   sortedNames.forEach(function (item, i) {
@@ -150,6 +153,7 @@ function moveUsersInScoreboard() {
     console.log('item: ', score);
     scoreboard.innerHTML += "<div class=\"scorecard score".concat(item, "\">\n      <p class=\"place place-").concat(item, "\">0").concat(place, "</p>\n      <p class=\"name name-").concat(item, "\">").concat(item, "</p>\n      <p class=\"score\" id=\"score-").concat(item, "\">").concat(score, "</p>\n    </div>");
   });
+  console.log('scoreboard: ', scoreboard);
 }
 },{}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
@@ -179,7 +183,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64559" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52652" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

@@ -175,6 +175,7 @@ io.on('connection', socket => {
 
           // Save songs of users in room
           cleanedDataWithName.forEach(song => {
+            console.log(song)
             foundRoom.songsTotal.push(song)
           })
 
@@ -348,8 +349,6 @@ io.on('connection', socket => {
 })
 
 function gameStart (room) {
-  io.in(room.pin).emit('game commands')
-
   // Wait 10 seconds with every iteration
   const interval = 30000
   room.songsSelection.forEach(function (song, index) {

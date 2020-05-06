@@ -120,7 +120,8 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 })({"js/scoreboard-move.js":[function(require,module,exports) {
 function moveUsersInScoreboard() {
   // Add all connected players to the guess room
-  var scores = document.getElementsByClassName('score'); // https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
+  var scores = document.getElementsByClassName('score');
+  console.log('scores', scores); // https://stackoverflow.com/questions/282670/easiest-way-to-sort-dom-nodes
   // Sort innerHTML from high to low (score)
 
   var sorted = [];
@@ -132,6 +133,7 @@ function moveUsersInScoreboard() {
     }
   }
 
+  console.log('sorted', sorted);
   sorted.sort(function (a, b) {
     return a.innerHTML === b.innerHTML ? 0 : a.innerHTML < b.innerHTML ? 1 : -1;
   }); // Remove 'score-' in id
@@ -141,6 +143,7 @@ function moveUsersInScoreboard() {
     id = id.replace('score-', '');
     return id;
   });
+  console.log('sorted names', sortedNames);
   var scoreboard = document.getElementsByClassName('scoreboard')[0];
   scoreboard.innerHTML = '';
   sortedNames.forEach(function (item, i) {
@@ -150,6 +153,7 @@ function moveUsersInScoreboard() {
     console.log('item: ', score);
     scoreboard.innerHTML += "<div class=\"scorecard score".concat(item, "\">\n      <p class=\"place place-").concat(item, "\">0").concat(place, "</p>\n      <p class=\"name name-").concat(item, "\">").concat(item, "</p>\n      <p class=\"score\" id=\"score-").concat(item, "\">").concat(score, "</p>\n    </div>");
   });
+  console.log('scoreboard: ', scoreboard);
 }
 },{}],"js/main.js":[function(require,module,exports) {
 "use strict";
@@ -190,8 +194,27 @@ document.getElementById('ready-to-play').addEventListener('click', function () {
 document.getElementsByClassName('time')[0].addEventListener('click', function () {
   guess.classList.remove('visible');
   score.classList.add('visible');
-}); // SOCKET.IO
+}); // Play and pause audio
+
+var play = document.getElementById('play-button');
+var pause = document.getElementById('pause-button');
+var audio = document.getElementById('audio-play');
+play.addEventListener('click', playAudio);
+pause.addEventListener('click', pauseAudio);
+
+function playAudio() {
+  play.classList.add('hidden');
+  pause.classList.remove('hidden');
+  audio.play();
+}
+
+function pauseAudio() {
+  pause.classList.add('hidden');
+  play.classList.remove('hidden');
+  audio.pause();
+} // SOCKET.IO
 // Creating game
+
 
 var createGameButton = document.getElementById('create-game');
 createGameButton.addEventListener('click', function () {
@@ -261,14 +284,13 @@ socket.on('starting', function () {
   guess.classList.add('visible');
 });
 socket.on('game commands', function (song) {
-  if (song !== undefined) {
+  if (song) {
     // Insert song and artist name
     var songMeta = document.getElementsByClassName('song-meta')[0];
-    songMeta.innerHTML = "\n      <h1>".concat(song.song, "</h1>\n      <h2>").concat(song.artists[0], "</h2>\n    "); // Insert audio
+    songMeta.innerHTML = "\n      <h1>".concat(song.song, "</h1>\n      <h2>").concat(song.artists[0], "</h2>\n    "); // Insert and play audio
 
-    var audio = document.getElementById('audio');
-    audio.innerHTML = "<audio id=\"audio-play\" src=\"".concat(song.sample, "\"></audio>");
-    document.getElementById('audio-play').play();
+    audio.src = song.sample;
+    playAudio();
   } // Trigger timer
 
 
@@ -277,13 +299,13 @@ socket.on('game commands', function (song) {
   timer.style.transition = 'all 30s linear';
   timer.style.width = '0px'; // Update right anwser visually
 
-  if (song.username !== undefined) {
+  if (song.username) {
     document.getElementById('answer-user').innerHTML = song.username;
   } // Pause song after 10 seconds
 
 
   setTimeout(function () {
-    document.getElementById('audio-play').pause();
+    pauseAudio();
   }, 25000); // Render the score page
 
   setTimeout(function () {
@@ -365,7 +387,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64559" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52652" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

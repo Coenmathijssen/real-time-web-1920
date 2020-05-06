@@ -381,10 +381,21 @@ p {
 }
 .guess .song .play-btn img {
   position: absolute;
-  width: 40%;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
+}
+.guess .song .play-btn img:first-of-type {
+  width: 30%;
+}
+.guess .song .play-btn img:first-of-type.hidden {
+  visibility: hidden;
+}
+.guess .song .play-btn img:last-of-type {
+  width: 40%;
+}
+.guess .song .play-btn img:last-of-type.hidden {
+  visibility: hidden;
 }
 .guess .time {
   position: relative;
