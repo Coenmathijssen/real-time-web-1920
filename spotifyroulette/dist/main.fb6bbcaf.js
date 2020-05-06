@@ -161,12 +161,11 @@ function moveUsersInScoreboard() {
 },{}],"js/main.js":[function(require,module,exports) {
 "use strict";
 
-var _scoreboardMove = _interopRequireDefault(require("./scoreboard-move.js"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _scoreboardMove = require("./scoreboard-move.js");
 
 // Import functions
-// Make connection
+console.log(_scoreboardMove.moveUsersInScoreboard); // Make connection
+
 var socket = io(); // let pages appear and disapear
 
 var introduction = document.getElementsByClassName('introduction')[0];
@@ -357,10 +356,10 @@ function submitAnswer() {
 }
 
 socket.on('update score', function (user, score) {
-  console.log(user);
+  console.log('users: ', user);
   console.log(document.getElementById("score-".concat(user)));
   document.getElementById("score-".concat(user)).textContent = score;
-  (0, _scoreboardMove.default)();
+  (0, _scoreboardMove.moveUsersInScoreboard)();
 });
 },{"./scoreboard-move.js":"js/scoreboard-move.js"}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];

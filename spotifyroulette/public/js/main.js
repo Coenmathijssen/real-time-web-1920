@@ -1,5 +1,6 @@
 // Import functions
-import moveUsersInScoreboard from './scoreboard-move.js'
+import { moveUsersInScoreboard } from './scoreboard-move.js'
+console.log(moveUsersInScoreboard)
 
 // Make connection
 const socket = io()
@@ -235,7 +236,7 @@ function submitAnswer () {
 }
 
 socket.on('update score', (user, score) => {
-  console.log(user)
+  console.log('users: ', user)
   console.log(document.getElementById(`score-${user}`))
   document.getElementById(`score-${user}`).textContent = score
 

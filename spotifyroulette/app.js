@@ -14,7 +14,7 @@ const { User, Room } = require('./server/user-schema.js')
 const { randomSongPick, filterDuplicates, addUsername, cleanItems, getRandomNumber } = require('./server/data.js')
 
 // Setting up port for express to use
-const server = app.listen(process.env.PORT || 3000);
+const server = app.listen(process.env.PORT || 3000)
 
 //  Serve html, css and js files in the static directory
 app.use(express.static(path.join(__dirname, 'dist')))
@@ -288,6 +288,7 @@ io.on('connection', socket => {
             } else {
               // filter out duplicate songs
               const noDuplicateSongs = filterDuplicates(foundRoom.songsTotal)
+              console.log(randomSongPick(noDuplicateSongs, 9))
 
               // Determine amount of used songs for game, according to duration
               if (foundRoom.duration === '5min') {
